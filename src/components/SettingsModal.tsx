@@ -18,6 +18,7 @@ import { checkNewPin, sanitizeString } from '@/lib/validation';
 import { changePin, clearAllData } from '@/lib/storage';
 import { exportBackup, importBackup, downloadBackup } from '@/lib/backup';
 import { useTheme } from '@/lib/theme';
+import { markBackupDone } from '@/lib/backupReminder';
 
 const MAX_BACKUP_BYTES = 5 * 1024 * 1024; // 5 MB
 
@@ -122,11 +123,12 @@ export function SettingsModal({
     }
   }, [busy, resetConfirmPin, showToast, onPinReset, onClose]);
 
-  const handleExport = useCallback(async () => {
+    const handleExport = useCallback(async () => {
     try {
       const blob = await exportBackup(data, pin);
       const date = new Date().toISOString().slice(0, 10);
       downloadBackup(blob, `escalafacil-backup-${date}.json`);
+      markBackupDone();
       showToast('Backup exportado com sucesso.', 'success');
     } catch {
       showToast('Erro ao exportar backup.', 'error');
