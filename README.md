@@ -16,6 +16,7 @@ Aplicativo web para organizar plantões e turnos médicos: calendário mensal, c
 - Backup dos dados em JSON criptografado (exportar e importar)
 - Lembrete de backup após 30 dias
 - Interface pensada para uso no celular
+- Exportação em planilha (CSV) para conferir plantões, horas e valores no celular ou no PC
 
 ## Segurança
 
