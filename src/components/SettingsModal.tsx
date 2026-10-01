@@ -1,4 +1,4 @@
-import { useState, useCallback, useRef } from 'react';
+import { useState, useCallback, useEffect, useRef } from 'react';
 import {
   Lock,
   Download,
@@ -6,14 +6,20 @@ import {
   Shield,
   Info,
   AlertTriangle,
+  Sun,
+  Moon,
 } from 'lucide-react';
 import type { AppData } from '@/types';
 import { Modal } from '@/components/Modal';
 import { Button } from '@/components/Button';
 import { Input } from '@/components/Input';
-import { validatePin, sanitizeString } from '@/lib/validation';
+import { SiteFooter } from '@/components/SiteFooter';
+import { checkNewPin, sanitizeString } from '@/lib/validation';
 import { changePin, clearAllData } from '@/lib/storage';
 import { exportBackup, importBackup, downloadBackup } from '@/lib/backup';
+import { useTheme } from '@/lib/theme';
+
+const MAX_BACKUP_BYTES = 5 * 1024 * 1024; // 5 MB
 
 interface SettingsModalProps {
   open: boolean;
@@ -43,50 +49,78 @@ export function SettingsModal({
   const [pinError, setPinError] = useState('');
   const [resetConfirmPin, setResetConfirmPin] = useState('');
   const [resetError, setResetError] = useState('');
+  const [busy, setBusy] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const { theme, setTheme } = useTheme();
+
+  // Ao fechar, limpa PINs digitados e volta para a tela principal
+  useEffect(() => {
+    if (!open) {
+      setSection('main');
+      setOldPin('');
+      setNewPin('');
+      setConfirmNewPin('');
+      setPinError('');
+      setResetConfirmPin('');
+      setResetError('');
+    }
+  }, [open]);
 
   const handleChangePin = useCallback(async () => {
+    if (busy) return;
     setPinError('');
     if (!oldPin) {
       setPinError('Digite seu PIN atual.');
       return;
     }
-    const pinErr = validatePin(newPin);
+    const pinErr = checkNewPin(newPin);
     if (pinErr) {
       setPinError(pinErr);
+      return;
+    }
+    if (newPin === oldPin) {
+      setPinError('O novo PIN deve ser diferente do atual.');
       return;
     }
     if (newPin !== confirmNewPin) {
       setPinError('Os PINs não coincidem.');
       return;
     }
-    const ok = await changePin(oldPin, newPin);
-    if (ok) {
-      onPinChanged(newPin);
-      showToast('PIN alterado com sucesso.', 'success');
-      setSection('main');
-      setOldPin('');
-      setNewPin('');
-      setConfirmNewPin('');
-    } else {
-      setPinError('PIN atual incorreto.');
+    setBusy(true);
+    try {
+      const ok = await changePin(oldPin, newPin);
+      if (ok) {
+        onPinChanged(newPin);
+        showToast('PIN alterado com sucesso.', 'success');
+        setSection('main');
+        setOldPin('');
+        setNewPin('');
+        setConfirmNewPin('');
+      } else {
+        setPinError('PIN atual incorreto.');
+      }
+    } catch {
+      setPinError('Não foi possível alterar o PIN. Tente novamente.');
+    } finally {
+      setBusy(false);
     }
-  }, [oldPin, newPin, confirmNewPin, showToast, onPinChanged]);
+  }, [busy, oldPin, newPin, confirmNewPin, showToast, onPinChanged]);
 
   const handleResetPin = useCallback(async () => {
+    if (busy || resetConfirmPin !== 'APAGAR') return;
     setResetError('');
-    if (
-      !confirm(
-        'Atenção: redefinir o PIN apagará todos os seus dados (plantões, modelos e configurações). Deseja continuar?'
-      )
-    ) {
-      return;
+    setBusy(true);
+    try {
+      await clearAllData();
+      showToast('PIN e dados redefinidos.', 'info');
+      onPinReset();
+      onClose();
+    } catch {
+      setResetError('Não foi possível apagar os dados. Tente novamente.');
+    } finally {
+      setBusy(false);
     }
-    await clearAllData();
-    showToast('PIN e dados redefinidos.', 'info');
-    onPinReset();
-    onClose();
-  }, [showToast, onPinReset, onClose]);
+  }, [busy, resetConfirmPin, showToast, onPinReset, onClose]);
 
   const handleExport = useCallback(async () => {
     try {
@@ -103,6 +137,14 @@ export function SettingsModal({
     async (e: React.ChangeEvent<HTMLInputElement>) => {
       const file = e.target.files?.[0];
       if (!file) return;
+      const clearInput = () => {
+        if (fileInputRef.current) fileInputRef.current.value = '';
+      };
+      if (file.size === 0 || file.size > MAX_BACKUP_BYTES) {
+        showToast('Arquivo inválido ou maior que 5 MB.', 'error');
+        clearInput();
+        return;
+      }
       try {
         const imported = await importBackup(file, pin);
         onImported(imported);
@@ -111,19 +153,19 @@ export function SettingsModal({
         const msg = err instanceof Error ? err.message : 'Erro ao importar.';
         showToast(msg, 'error');
       }
-      if (fileInputRef.current) fileInputRef.current.value = '';
+      clearInput();
     },
     [pin, onImported, showToast]
   );
 
   const totalShifts = data.shifts.length;
   const paidShifts = data.shifts.filter((s) => s.paid).length;
+
+  // Compara "AAAA-MM" direto no texto da data (evita erro de fuso horário)
+  const now = new Date();
+  const currentMonth = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
   const monthRevenue = data.shifts
-    .filter((s) => {
-      const d = new Date(s.date);
-      const now = new Date();
-      return d.getMonth() === now.getMonth() && d.getFullYear() === now.getFullYear();
-    })
+    .filter((s) => s.date.startsWith(currentMonth))
     .reduce((sum, s) => sum + s.value, 0);
 
   return (
@@ -135,16 +177,28 @@ export function SettingsModal({
       footer={
         section !== 'main' ? (
           <>
-            <Button variant="ghost" onClick={() => { setSection('main'); setPinError(''); }}>
+            <Button
+              variant="ghost"
+              onClick={() => {
+                setSection('main');
+                setPinError('');
+                setResetError('');
+                setResetConfirmPin('');
+              }}
+            >
               Voltar
             </Button>
             {section === 'changePin' && (
-              <Button variant="primary" onClick={handleChangePin}>
-                Confirmar alteração
+              <Button variant="primary" onClick={handleChangePin} disabled={busy}>
+                {busy ? 'Alterando...' : 'Confirmar alteração'}
               </Button>
             )}
             {section === 'resetPin' && (
-              <Button variant="danger" onClick={handleResetPin}>
+              <Button
+                variant="danger"
+                onClick={handleResetPin}
+                disabled={busy || resetConfirmPin !== 'APAGAR'}
+              >
                 Redefinir tudo
               </Button>
             )}
@@ -171,6 +225,40 @@ export function SettingsModal({
                 {new Intl.NumberFormat('pt-BR', { notation: 'compact' }).format(monthRevenue)}
               </p>
               <p className="text-xs text-slate-400">Mês atual</p>
+            </div>
+          </div>
+
+          {/* Aparência */}
+          <div>
+            <h3 className="mb-2 flex items-center gap-2 text-sm font-semibold text-slate-300">
+              <Sun size={15} className="text-teal-400" />
+              Aparência
+            </h3>
+            <div className="grid grid-cols-2 gap-2">
+              <button
+                type="button"
+                onClick={() => setTheme('light')}
+                aria-pressed={theme === 'light'}
+                className={`flex items-center justify-center gap-2 rounded-xl border px-4 py-3 text-sm transition ${
+                  theme === 'light'
+                    ? 'border-teal-500 bg-teal-600/20 text-teal-400'
+                    : 'border-slate-700 bg-slate-800/50 text-slate-300 hover:border-slate-600'
+                }`}
+              >
+                <Sun size={16} /> Claro
+              </button>
+              <button
+                type="button"
+                onClick={() => setTheme('dark')}
+                aria-pressed={theme === 'dark'}
+                className={`flex items-center justify-center gap-2 rounded-xl border px-4 py-3 text-sm transition ${
+                  theme === 'dark'
+                    ? 'border-teal-500 bg-teal-600/20 text-teal-400'
+                    : 'border-slate-700 bg-slate-800/50 text-slate-300 hover:border-slate-600'
+                }`}
+              >
+                <Moon size={16} /> Escuro
+              </button>
             </div>
           </div>
 
@@ -225,7 +313,7 @@ export function SettingsModal({
                 <Upload size={18} className="text-teal-400" />
                 <div>
                   <p className="text-sm text-slate-200">Importar backup</p>
-                  <p className="text-xs text-slate-500">Restaurar de arquivo .json</p>
+                  <p className="text-xs text-slate-500">Restaurar de arquivo .json (até 5 MB)</p>
                 </div>
               </button>
               <input
@@ -249,6 +337,7 @@ export function SettingsModal({
                   usando seu PIN como chave. Nenhum dado é enviado para servidores
                   externos.
                 </p>
+                <SiteFooter className="mt-2" />
               </div>
             </div>
           </div>
@@ -311,7 +400,7 @@ export function SettingsModal({
           <Button
             variant="danger"
             onClick={handleResetPin}
-            disabled={resetConfirmPin !== 'APAGAR'}
+            disabled={busy || resetConfirmPin !== 'APAGAR'}
             className="w-full"
           >
             <AlertTriangle size={16} /> Redefinir PIN e apagar todos os dados
