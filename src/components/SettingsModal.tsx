@@ -1,4 +1,4 @@
-import { useState, useCallback, useEffect, useRef } from 'react';
+import { useState, useCallback, useEffect, useRef, useMemo } from 'react';
 import {
   Lock,
   Download,
@@ -18,6 +18,7 @@ import { checkNewPin, sanitizeString } from '@/lib/validation';
 import { changePin, clearAllData } from '@/lib/storage';
 import { exportBackup, importBackup, downloadBackup } from '@/lib/backup';
 import { useTheme } from '@/lib/theme';
+import { buildShiftsCsv } from '@/lib/exportCsv';
 import { markBackupDone } from '@/lib/backupReminder';
 
 const MAX_BACKUP_BYTES = 5 * 1024 * 1024; // 5 MB
@@ -123,7 +124,7 @@ export function SettingsModal({
     }
   }, [busy, resetConfirmPin, showToast, onPinReset, onClose]);
 
-    const handleExport = useCallback(async () => {
+  const handleExport = useCallback(async () => {
     try {
       const blob = await exportBackup(data, pin);
       const date = new Date().toISOString().slice(0, 10);
@@ -134,6 +135,21 @@ export function SettingsModal({
       showToast('Erro ao exportar backup.', 'error');
     }
   }, [data, pin, showToast]);
+
+  const handleExportCsv = useCallback(() => {
+    if (data.shifts.length === 0) {
+      showToast('Não há plantões para exportar.', 'error');
+      return;
+    }
+    try {
+      const blob = buildShiftsCsv(data.shifts);
+      const date = new Date().toISOString().slice(0, 10);
+      downloadBackup(blob, `escalafacil-plantoes-${date}.csv`);
+      showToast('Planilha exportada. O arquivo não é criptografado: guarde com cuidado.', 'success');
+    } catch {
+      showToast('Erro ao exportar a planilha.', 'error');
+    }
+  }, [data.shifts, showToast]);
 
   const handleImport = useCallback(
     async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -163,12 +179,13 @@ export function SettingsModal({
   const totalShifts = data.shifts.length;
   const paidShifts = data.shifts.filter((s) => s.paid).length;
 
-  // Compara "AAAA-MM" direto no texto da data (evita erro de fuso horário)
-  const now = new Date();
-  const currentMonth = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
-  const monthRevenue = data.shifts
-    .filter((s) => s.date.startsWith(currentMonth))
-    .reduce((sum, s) => sum + s.value, 0);
+  const monthRevenue = useMemo(() => {
+    const now = new Date();
+    const currentMonth = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
+    return data.shifts
+      .filter((s) => s.date.startsWith(currentMonth))
+      .reduce((sum, s) => sum + s.value, 0);
+  }, [data.shifts]);
 
   return (
     <Modal
@@ -272,6 +289,7 @@ export function SettingsModal({
             </h3>
             <div className="space-y-1.5">
               <button
+                type="button"
                 onClick={() => setSection('changePin')}
                 className="flex w-full items-center justify-between rounded-xl border border-slate-700 bg-slate-800/50 px-4 py-3 text-left transition hover:border-slate-600 hover:bg-slate-800"
               >
@@ -279,6 +297,7 @@ export function SettingsModal({
                 <span className="text-slate-500">→</span>
               </button>
               <button
+                type="button"
                 onClick={() => setSection('resetPin')}
                 className="flex w-full items-center justify-between rounded-xl border border-red-900/50 bg-red-950/20 px-4 py-3 text-left transition hover:border-red-800 hover:bg-red-950/40"
               >
@@ -299,6 +318,7 @@ export function SettingsModal({
             </h3>
             <div className="space-y-1.5">
               <button
+                type="button"
                 onClick={handleExport}
                 className="flex w-full items-center gap-3 rounded-xl border border-slate-700 bg-slate-800/50 px-4 py-3 text-left transition hover:border-slate-600 hover:bg-slate-800"
               >
@@ -308,7 +328,21 @@ export function SettingsModal({
                   <p className="text-xs text-slate-500">Arquivo .json criptografado</p>
                 </div>
               </button>
+
               <button
+                type="button"
+                onClick={handleExportCsv}
+                className="flex w-full items-center gap-3 rounded-xl border border-slate-700 bg-slate-800/50 px-4 py-3 text-left transition hover:border-slate-600 hover:bg-slate-800"
+              >
+                <Download size={18} className="text-teal-400" />
+                <div>
+                  <p className="text-sm text-slate-200">Exportar planilha (CSV)</p>
+                  <p className="text-xs text-slate-500">Legível no celular e no PC, sem criptografia</p>
+                </div>
+              </button>
+
+              <button
+                type="button"
                 onClick={() => fileInputRef.current?.click()}
                 className="flex w-full items-center gap-3 rounded-xl border border-slate-700 bg-slate-800/50 px-4 py-3 text-left transition hover:border-slate-600 hover:bg-slate-800"
               >
@@ -318,6 +352,7 @@ export function SettingsModal({
                   <p className="text-xs text-slate-500">Restaurar de arquivo .json (até 5 MB)</p>
                 </div>
               </button>
+
               <input
                 ref={fileInputRef}
                 type="file"
@@ -399,14 +434,6 @@ export function SettingsModal({
             value={resetConfirmPin}
             onChange={(e) => setResetConfirmPin(sanitizeString(e.target.value, 10))}
           />
-          <Button
-            variant="danger"
-            onClick={handleResetPin}
-            disabled={busy || resetConfirmPin !== 'APAGAR'}
-            className="w-full"
-          >
-            <AlertTriangle size={16} /> Redefinir PIN e apagar todos os dados
-          </Button>
           {resetError && <p className="text-sm text-red-400">{resetError}</p>}
         </div>
       )}
