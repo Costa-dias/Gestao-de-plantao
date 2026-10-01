@@ -206,7 +206,7 @@ function App() {
               <Stethoscope size={20} className="text-teal-400" />
             </div>
             <div>
-              <h1 className="text-base font-bold text-slate-100">EscalaFácil</h1>
+              <h1 className="text-base font-bold text-slate-100">GestãodePlantões</h1>
               <p className="text-[11px] text-slate-500">Gestão de Plantões</p>
             </div>
           </div>
