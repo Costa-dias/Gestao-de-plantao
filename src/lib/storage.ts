@@ -58,6 +58,21 @@ async function idbSet(key: string, value: unknown): Promise<void> {
   });
 }
 
+// Grava vários itens numa única transação: ou grava todos, ou nenhum.
+async function idbSetMany(entries: Array<[string, unknown]>): Promise<void> {
+  const db = await openDB();
+  return new Promise((resolve, reject) => {
+    const tx = db.transaction(STORE_KV, 'readwrite');
+    const store = tx.objectStore(STORE_KV);
+    for (const [key, value] of entries) {
+      store.put(value, key);
+    }
+    tx.oncomplete = () => resolve();
+    tx.onerror = () => reject(tx.error);
+    tx.onabort = () => reject(tx.error);
+  });
+}
+
 async function idbDel(key: string): Promise<void> {
   const db = await openDB();
   return new Promise((resolve, reject) => {
@@ -66,6 +81,48 @@ async function idbDel(key: string): Promise<void> {
     tx.oncomplete = () => resolve();
     tx.onerror = () => reject(tx.error);
   });
+}
+
+// ─── Fila de escrita: uma operação por vez, na ordem em que foram chamadas ───
+
+let writeQueue: Promise<void> = Promise.resolve();
+
+function enqueue<T>(task: () => Promise<T>): Promise<T> {
+  const result = writeQueue.then(task);
+  writeQueue = result.then(
+    () => undefined,
+    () => undefined
+  );
+  return result;
+}
+
+// ─── Montagem dos registros (só calcula, não grava) ────────────
+
+async function buildPinRecord(pin: string): Promise<PinHashData> {
+  const salt = generateSalt();
+  const iv = generateIV();
+  const key = await deriveVerifierKey(pin, salt);
+  // Cifra uma palavra conhecida: se decifrar, o PIN está correto
+  const verifier = await encryptString('VERIFIED', key, iv);
+  return { salt, iv, verifier };
+}
+
+async function buildDataRecords(
+  data: AppData,
+  pin: string
+): Promise<Array<[string, unknown]>> {
+  if (!pin || !isValidBackupData(data)) {
+    throw new Error('Dados locais inválidos.');
+  }
+  const salt = (await idbGet<string>(DATA_SALT_KEY)) ?? generateSalt();
+  const iv = generateIV();
+  const key = await deriveVerifierKey(pin, salt);
+  const cipher = await encryptString(JSON.stringify(data), key, iv);
+  return [
+    [DATA_SALT_KEY, salt],
+    [DATA_IV_KEY, iv],
+    [DATA_KEY, cipher],
+  ];
 }
 
 // ─── PIN management ────────────────────────────────────────────
@@ -77,13 +134,8 @@ export async function isPinSet(): Promise<boolean> {
 
 export async function setupPin(pin: string): Promise<void> {
   if (validatePin(pin)) throw new Error('PIN inválido.');
-  const salt = generateSalt();
-  const iv = generateIV();
-  const key = await deriveVerifierKey(pin, salt);
-  // Encrypt a known verifier string — if decryption succeeds, PIN is correct
-  const verifier = await encryptString('VERIFIED', key, iv);
-  const hash: PinHashData = { salt, iv, verifier };
-  await idbSet(PIN_KEY, hash);
+  const record = await buildPinRecord(pin);
+  await idbSet(PIN_KEY, record);
 }
 
 export async function verifyPin(pin: string): Promise<boolean> {
@@ -99,11 +151,18 @@ export async function verifyPin(pin: string): Promise<boolean> {
   }
 }
 
-export async function changePin(oldPin: string, newPin: string): Promise<boolean> {
-  const ok = await verifyPin(oldPin);
-  if (!ok) return false;
-  await setupPin(newPin);
-  return true;
+// Troca o PIN e recifra os dados com o PIN novo, tudo na mesma transação.
+export function changePin(oldPin: string, newPin: string): Promise<boolean> {
+  return enqueue(async () => {
+    const ok = await verifyPin(oldPin);
+    if (!ok) return false;
+    if (validatePin(newPin)) throw new Error('PIN inválido.');
+    const current = await loadData(oldPin);
+    const pinRecord = await buildPinRecord(newPin);
+    const dataEntries = await buildDataRecords(current, newPin);
+    await idbSetMany([[PIN_KEY, pinRecord], ...dataEntries]);
+    return true;
+  });
 }
 
 export async function resetPin(): Promise<void> {
@@ -142,18 +201,11 @@ export async function resetAttempts(): Promise<void> {
 
 // ─── App data (encrypted at rest with PIN-derived key) ─────────
 
-export async function saveData(data: AppData, pin: string): Promise<void> {
-  if (!pin || !isValidBackupData(data)) {
-    throw new Error('Dados locais inválidos.');
-  }
-  const salt = (await idbGet<string>(DATA_SALT_KEY)) ?? generateSalt();
-  const iv = generateIV();
-  const key = await deriveVerifierKey(pin, salt);
-  const json = JSON.stringify(data);
-  const cipher = await encryptString(json, key, iv);
-  await idbSet(DATA_SALT_KEY, salt);
-  await idbSet(DATA_IV_KEY, iv);
-  await idbSet(DATA_KEY, cipher);
+export function saveData(data: AppData, pin: string): Promise<void> {
+  return enqueue(async () => {
+    const entries = await buildDataRecords(data, pin);
+    await idbSetMany(entries);
+  });
 }
 
 export async function loadData(pin: string): Promise<AppData> {
