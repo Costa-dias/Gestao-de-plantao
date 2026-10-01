@@ -20,6 +20,7 @@ export function useAppData() {
   const [data, setData] = useState<AppData | null>(null);
   const [pin, setPin] = useState<string>('');
   const [error, setError] = useState<string>('');
+  const [saveError, setSaveError] = useState<string>('');
   const [lockedSeconds, setLockedSeconds] = useState<number>(0);
   const lockTimerRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
@@ -61,14 +62,22 @@ export function useAppData() {
     };
   }, [lockedSeconds]);
 
-  // Persist data whenever it changes
+  // Persist data whenever it changes. Se a gravação falhar, avisa o usuário.
   const persist = useCallback(
     async (newData: AppData, currentPin: string) => {
       if (!currentPin) return;
-      await saveData(newData, currentPin);
+      try {
+        await saveData(newData, currentPin);
+      } catch {
+        setSaveError(
+          'Não foi possível salvar suas alterações. Exporte um backup para não perder dados.'
+        );
+      }
     },
     []
   );
+
+  const clearSaveError = useCallback(() => setSaveError(''), []);
 
   const handleSetupPin = useCallback(async (newPin: string) => {
     await setupPin(newPin);
@@ -158,6 +167,18 @@ export function useAppData() {
     [updateData]
   );
 
+  // Adiciona vários plantões de uma vez (um único salvamento)
+  const addShifts = useCallback(
+    (list: Array<Omit<Shift, 'id' | 'createdAt' | 'updatedAt'>>) => {
+      if (list.length === 0) return;
+      updateData((prev) => ({
+        ...prev,
+        shifts: [...prev.shifts, ...list.map((item) => createShift(item))],
+      }));
+    },
+    [updateData]
+  );
+
   const updateShift = useCallback(
     (id: string, shiftData: Partial<Shift>) => {
       updateData((prev) => ({
@@ -223,6 +244,8 @@ export function useAppData() {
     data,
     pin,
     error,
+    saveError,
+    clearSaveError,
     lockedSeconds,
     handleSetupPin,
     handleUnlock,
@@ -230,6 +253,7 @@ export function useAppData() {
     handlePinChanged,
     handlePinReset,
     addShift,
+    addShifts,
     updateShift,
     deleteShift,
     addTemplate,
