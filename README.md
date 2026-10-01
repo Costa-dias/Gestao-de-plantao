@@ -2,7 +2,7 @@
 
 Aplicativo web para organizar plantões e turnos médicos: cadastro de turnos, calendário mensal, modelos reutilizáveis, relatórios e backup dos dados, tudo protegido por PIN.
 
-🔗 **Site:** COLE_AQUI_O_LINK_DO_SITE
+🔗 **Site:** https://medical-shift-manage-bkot.bolt.host/
 
 ## Funcionalidades
 
