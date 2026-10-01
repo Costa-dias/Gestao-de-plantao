@@ -60,10 +60,13 @@ export function LockScreen({
     }
   }, [isLocked, mode, step, pin, confirmPin]);
 
-  // Auto-submit when PIN reaches length in unlock mode
+  // Envia automaticamente só quando chega ao tamanho máximo (6 dígitos)
   useEffect(() => {
-    if (mode === 'unlock' && pin.length >= 4) {
-      const timer = setTimeout(() => onUnlock(pin), 200);
+    if (mode === 'unlock' && pin.length === 6) {
+      const timer = setTimeout(() => {
+        onUnlock(pin);
+        setPin('');
+      }, 200);
       return () => clearTimeout(timer);
     }
   }, [pin, mode, onUnlock]);
@@ -163,6 +166,18 @@ export function LockScreen({
               className="text-sm font-medium text-teal-400 hover:text-teal-300"
             >
               Próximo
+            </button>
+          )}
+          {mode === 'unlock' && pin.length >= 4 && pin.length < 6 && (
+            <button
+              onClick={() => {
+                onUnlock(pin);
+                setPin('');
+              }}
+              disabled={isLocked}
+              className="text-sm font-medium text-teal-400 hover:text-teal-300 disabled:opacity-40"
+            >
+              Entrar
             </button>
           )}
         </div>
