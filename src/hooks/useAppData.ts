@@ -36,6 +36,7 @@ export function useAppData() {
     const onVisibility = () => {
       if (document.visibilityState === 'hidden' && phase === 'unlocked') {
         setPhase('locked');
+        setData(null);
         setPin('');
       }
     };
