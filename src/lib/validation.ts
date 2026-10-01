@@ -10,6 +10,7 @@ const MAX_NOTES = 1000;
 const MAX_NAME = 100;
 const MAX_SHIFTS = 20_000;
 const MAX_TEMPLATES = 1_000;
+const MAX_VALUE = 10_000_000;
 const HEX_COLOR = /^#[0-9a-fA-F]{6}$/;
 const ISO_DATE = /^\d{4}-\d{2}-\d{2}$/;
 const TIME = /^([01]\d|2[0-3]):[0-5]\d$/;
@@ -55,7 +56,7 @@ export function isValidBackupData(value: unknown): value is AppData {
     if (!isValidColor(shift.color) || !isValidISODate(shift.date)) return false;
     if (typeof shift.startTime !== 'string' || !TIME.test(shift.startTime)) return false;
     if (typeof shift.endTime !== 'string' || !TIME.test(shift.endTime)) return false;
-    if (!isFiniteNonNegative(shift.value, 10_000_000)) return false;
+    if (!isFiniteNonNegative(shift.value, MAX_VALUE)) return false;
     if (shift.paymentDate !== undefined && !isValidISODate(shift.paymentDate)) return false;
     if (typeof shift.paid !== 'boolean') return false;
     if (shift.notes !== undefined && (typeof shift.notes !== 'string' || shift.notes.length > MAX_NOTES)) return false;
@@ -71,7 +72,7 @@ export function isValidBackupData(value: unknown): value is AppData {
     if (typeof template.location !== 'string' || template.location.length > MAX_LOCATION) return false;
     if (!isValidColor(template.color) || typeof template.startTime !== 'string' || !TIME.test(template.startTime)) return false;
     if (typeof template.endTime !== 'string' || !TIME.test(template.endTime)) return false;
-    if (!isFiniteNonNegative(template.value, 10_000_000)) return false;
+    if (!isFiniteNonNegative(template.value, MAX_VALUE)) return false;
     if (template.notes !== undefined && (typeof template.notes !== 'string' || template.notes.length > MAX_NOTES)) return false;
   }
   return true;
@@ -86,20 +87,20 @@ export function validateShift(data: Partial<Shift>): ValidationResult {
     errors.location = `Máximo de ${MAX_LOCATION} caracteres.`;
   }
 
-  if (!data.date || !/^\d{4}-\d{2}-\d{2}$/.test(data.date)) {
+  if (!isValidISODate(data.date)) {
     errors.date = 'Data inválida.';
   }
 
-  if (!data.startTime || !/^([01]\d|2[0-3]):[0-5]\d$/.test(data.startTime)) {
+  if (!data.startTime || !TIME.test(data.startTime)) {
     errors.startTime = 'Hora de início inválida.';
   }
 
-  if (!data.endTime || !/^([01]\d|2[0-3]):[0-5]\d$/.test(data.endTime)) {
+  if (!data.endTime || !TIME.test(data.endTime)) {
     errors.endTime = 'Hora de término inválida.';
   }
 
   if (data.value !== undefined && data.value !== null) {
-    if (typeof data.value !== 'number' || data.value < 0 || data.value > 10_000_000) {
+    if (!isFiniteNonNegative(data.value, MAX_VALUE)) {
       errors.value = 'Valor inválido.';
     }
   }
@@ -108,7 +109,7 @@ export function validateShift(data: Partial<Shift>): ValidationResult {
     errors.notes = `Máximo de ${MAX_NOTES} caracteres.`;
   }
 
-  if (data.paymentDate && !/^\d{4}-\d{2}-\d{2}$/.test(data.paymentDate)) {
+  if (data.paymentDate && !isValidISODate(data.paymentDate)) {
     errors.paymentDate = 'Data de pagamento inválida.';
   }
 
@@ -126,26 +127,54 @@ export function validateTemplate(data: Partial<ShiftTemplate>): ValidationResult
 
   if (!data.location || data.location.trim().length === 0) {
     errors.location = 'O local do plantão é obrigatório.';
+  } else if (data.location.length > MAX_LOCATION) {
+    errors.location = `Máximo de ${MAX_LOCATION} caracteres.`;
   }
 
-  if (!data.startTime || !/^([01]\d|2[0-3]):[0-5]\d$/.test(data.startTime)) {
+  if (!data.startTime || !TIME.test(data.startTime)) {
     errors.startTime = 'Hora de início inválida.';
   }
 
-  if (!data.endTime || !/^([01]\d|2[0-3]):[0-5]\d$/.test(data.endTime)) {
+  if (!data.endTime || !TIME.test(data.endTime)) {
     errors.endTime = 'Hora de término inválida.';
   }
 
-  if (data.value !== undefined && (typeof data.value !== 'number' || data.value < 0)) {
+  if (data.value !== undefined && !isFiniteNonNegative(data.value, MAX_VALUE)) {
     errors.value = 'Valor inválido.';
+  }
+
+  if (data.notes && data.notes.length > MAX_NOTES) {
+    errors.notes = `Máximo de ${MAX_NOTES} caracteres.`;
   }
 
   return { valid: Object.keys(errors).length === 0, errors };
 }
 
+// Só confere o formato (4 a 6 dígitos). Usado também no login,
+// por isso NÃO recusa PINs fracos: quem já tem um continua entrando.
 export function validatePin(pin: string): string | null {
   if (!/^\d{4,6}$/.test(pin)) {
     return 'O PIN deve ter entre 4 e 6 dígitos numéricos.';
   }
+  return null;
+}
+
+// Usar só ao CRIAR ou TROCAR o PIN: além do formato, recusa PINs óbvios.
+export function checkNewPin(pin: string): string | null {
+  const formatError = validatePin(pin);
+  if (formatError) return formatError;
+
+  // Repetições: 1111, 1212, 123123
+  if (/^(\d{1,3})\1+$/.test(pin)) {
+    return 'PIN muito fácil de adivinhar. Evite repetições como 1111 ou 1212.';
+  }
+
+  // Sequências: 1234, 123456, 4321, 654321
+  const digits = pin.split('').map(Number);
+  const steps = digits.slice(1).map((digit, i) => digit - digits[i]);
+  if (steps.every((s) => s === 1) || steps.every((s) => s === -1)) {
+    return 'PIN muito fácil de adivinhar. Evite sequências como 1234 ou 4321.';
+  }
+
   return null;
 }
