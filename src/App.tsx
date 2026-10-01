@@ -7,9 +7,12 @@ import {
   CalendarDays,
   Stethoscope,
   FileText,
+  Sun,
+  Moon,
 } from 'lucide-react';
 import { useAppData } from '@/hooks/useAppData';
 import { useToast } from '@/hooks/useToast';
+import { useTheme } from '@/lib/theme';
 import { LockScreen } from '@/components/LockScreen';
 import { MonthView } from '@/components/MonthView';
 import { ShiftModal } from '@/components/ShiftModal';
@@ -18,6 +21,7 @@ import { SettingsModal } from '@/components/SettingsModal';
 import { ReportView } from '@/components/ReportView';
 import { Button } from '@/components/Button';
 import { ToastContainer } from '@/components/ToastContainer';
+import { SiteFooter } from '@/components/SiteFooter';
 import { formatCurrency, toISODate, fromISODate, formatDateBR } from '@/lib/dateUtils';
 import type { Shift, AppData } from '@/types';
 
@@ -42,6 +46,7 @@ function App() {
   } = useAppData();
 
   const { toasts, showToast, dismissToast } = useToast();
+  const { theme, toggle: toggleTheme } = useTheme();
 
   const [now, setNow] = useState(new Date());
   const [selectedDate, setSelectedDate] = useState<string | null>(null);
@@ -221,6 +226,14 @@ function App() {
               <Layers size={20} />
             </button>
             <button
+              onClick={toggleTheme}
+              className="rounded-lg p-2 text-slate-400 transition hover:bg-slate-800 hover:text-slate-100"
+              title={theme === 'dark' ? 'Tema claro' : 'Tema escuro'}
+              aria-label={theme === 'dark' ? 'Ativar tema claro' : 'Ativar tema escuro'}
+            >
+              {theme === 'dark' ? <Sun size={20} /> : <Moon size={20} />}
+            </button>
+            <button
               onClick={() => setSettingsOpen(true)}
               className="rounded-lg p-2 text-slate-400 transition hover:bg-slate-800 hover:text-slate-100"
               title="Configurações"
@@ -241,7 +254,7 @@ function App() {
       {/* Main content */}
       <main className="mx-auto max-w-4xl px-4 py-4">
         {/* Stats bar */}
-        <div className="mb-4 grid grid-cols-2 gap-3 sm:grid-cols-4">
+        <div className="mb-4 grid grid-cols-2 gap-3 sm:grid-cols-3">
           <StatCard
             label="Plantões"
             value={String(stats.total)}
@@ -319,6 +332,8 @@ function App() {
             </div>
           </div>
         )}
+
+        <SiteFooter className="mt-8 text-center" />
       </main>
 
       {/* Bottom action bar */}
