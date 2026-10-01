@@ -9,15 +9,23 @@ import {
   FileText,
   Sun,
   Moon,
+  Repeat,
+  Download,
 } from 'lucide-react';
 import { useAppData } from '@/hooks/useAppData';
 import { useToast } from '@/hooks/useToast';
 import { useTheme } from '@/lib/theme';
+import {
+  isBackupDue,
+  getDaysSinceBackup,
+  snoozeBackupReminder,
+} from '@/lib/backupReminder';
 import { LockScreen } from '@/components/LockScreen';
 import { MonthView } from '@/components/MonthView';
 import { ShiftModal } from '@/components/ShiftModal';
 import { TemplateModal } from '@/components/TemplateModal';
 import { SettingsModal } from '@/components/SettingsModal';
+import { RepeatModal } from '@/components/RepeatModal';
 import { ReportView } from '@/components/ReportView';
 import { Button } from '@/components/Button';
 import { ToastContainer } from '@/components/ToastContainer';
@@ -31,6 +39,8 @@ function App() {
     data,
     pin,
     error,
+    saveError,
+    clearSaveError,
     lockedSeconds,
     handleSetupPin,
     handleUnlock,
@@ -38,6 +48,7 @@ function App() {
     handlePinChanged,
     handlePinReset,
     addShift,
+    addShifts,
     updateShift,
     deleteShift,
     addTemplate,
@@ -55,9 +66,12 @@ function App() {
   const [templateModalOpen, setTemplateModalOpen] = useState(false);
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [reportOpen, setReportOpen] = useState(false);
+  const [repeatShift, setRepeatShift] = useState<Shift | null>(null);
+  const [backupDue, setBackupDue] = useState(false);
 
   const year = now.getFullYear();
   const month = now.getMonth();
+  const shiftCount = data?.shifts.length ?? 0;
 
   // Default selected date = today
   useEffect(() => {
@@ -65,6 +79,21 @@ function App() {
       setSelectedDate(toISODate(new Date()));
     }
   }, [phase, selectedDate]);
+
+  // Avisa quando uma gravação falha
+  useEffect(() => {
+    if (saveError) {
+      showToast(saveError, 'error');
+      clearSaveError();
+    }
+  }, [saveError, showToast, clearSaveError]);
+
+  // Confere se está na hora de lembrar do backup
+  useEffect(() => {
+    if (phase === 'unlocked') {
+      setBackupDue(isBackupDue(shiftCount > 0));
+    }
+  }, [phase, settingsOpen, shiftCount]);
 
   const visibleShifts = useMemo(() => {
     if (!data) return [];
@@ -144,6 +173,14 @@ function App() {
     [deleteShift, showToast]
   );
 
+  const handleConfirmRepeat = useCallback(
+    (list: Array<Omit<Shift, 'id' | 'createdAt' | 'updatedAt'>>) => {
+      addShifts(list);
+      showToast(`${list.length} plantões criados.`, 'success');
+    },
+    [addShifts, showToast]
+  );
+
   const handleSaveTemplate = useCallback(
     (tplData: Parameters<typeof addTemplate>[0]) => {
       addTemplate(tplData);
@@ -164,6 +201,11 @@ function App() {
     handlePinReset();
     setSettingsOpen(false);
   }, [handlePinReset]);
+
+  const handleSnoozeBackup = useCallback(() => {
+    snoozeBackupReminder();
+    setBackupDue(false);
+  }, []);
 
   // Render phases
   if (phase === 'loading') {
@@ -196,6 +238,8 @@ function App() {
 
   if (!data) return null;
 
+  const daysSinceBackup = getDaysSinceBackup();
+
   return (
     <div className="min-h-screen bg-slate-950 pb-24">
       {/* Header */}
@@ -206,7 +250,7 @@ function App() {
               <Stethoscope size={20} className="text-teal-400" />
             </div>
             <div>
-              <h1 className="text-base font-bold text-slate-100">GestãodePlantões</h1>
+              <h1 className="text-base font-bold text-slate-100">EscalaFácil</h1>
               <p className="text-[11px] text-slate-500">Gestão de Plantões</p>
             </div>
           </div>
@@ -253,6 +297,32 @@ function App() {
 
       {/* Main content */}
       <main className="mx-auto max-w-4xl px-4 py-4">
+        {/* Lembrete de backup */}
+        {backupDue && (
+          <div className="mb-4 flex items-start gap-3 rounded-xl border border-amber-600/30 bg-amber-950/30 p-3">
+            <Download size={18} className="mt-0.5 shrink-0 text-amber-400" />
+            <div className="min-w-0 flex-1">
+              <p className="text-sm font-medium text-amber-300">
+                Faça um backup dos seus plantões
+              </p>
+              <p className="mt-0.5 text-xs text-slate-400">
+                {daysSinceBackup === null
+                  ? 'Você ainda não fez nenhum backup.'
+                  : `Seu último backup foi há ${daysSinceBackup} dias.`}{' '}
+                Seus dados ficam só neste aparelho.
+              </p>
+              <div className="mt-2 flex gap-2">
+                <Button variant="primary" onClick={() => setSettingsOpen(true)}>
+                  Fazer backup
+                </Button>
+                <Button variant="ghost" onClick={handleSnoozeBackup}>
+                  Depois
+                </Button>
+              </div>
+            </div>
+          </div>
+        )}
+
         {/* Stats bar */}
         <div className="mb-4 grid grid-cols-2 gap-3 sm:grid-cols-3">
           <StatCard
@@ -297,31 +367,40 @@ function App() {
                 .filter((s) => s.date === selectedDate)
                 .map((shift) => {
                   return (
-                    <button
-                      key={shift.id}
-                      onClick={() => handleSelectShift(shift)}
-                      className="flex w-full items-center gap-3 rounded-xl border border-slate-700 bg-slate-800/50 p-3 text-left transition hover:border-slate-600 hover:bg-slate-800"
-                    >
-                      <div
-                        className="h-10 w-1.5 rounded-full"
-                        style={{ backgroundColor: shift.color }}
-                      />
-                      <div className="flex-1 min-w-0">
-                        <p className="truncate font-medium text-slate-200">
-                          {shift.location}
-                        </p>
-                        <p className="text-xs text-slate-400">
-                          {shift.startTime} às {shift.endTime}
-                          {shift.value > 0 &&
-                            ` · ${formatCurrency(shift.value)}`}
-                        </p>
-                      </div>
-                      {shift.paid && (
-                        <span className="rounded-full bg-emerald-600/20 px-2.5 py-0.5 text-xs font-medium text-emerald-400">
-                          Pago
-                        </span>
-                      )}
-                    </button>
+                    <div key={shift.id} className="flex items-stretch gap-2">
+                      <button
+                        onClick={() => handleSelectShift(shift)}
+                        className="flex min-w-0 flex-1 items-center gap-3 rounded-xl border border-slate-700 bg-slate-800/50 p-3 text-left transition hover:border-slate-600 hover:bg-slate-800"
+                      >
+                        <div
+                          className="h-10 w-1.5 rounded-full"
+                          style={{ backgroundColor: shift.color }}
+                        />
+                        <div className="flex-1 min-w-0">
+                          <p className="truncate font-medium text-slate-200">
+                            {shift.location}
+                          </p>
+                          <p className="text-xs text-slate-400">
+                            {shift.startTime} às {shift.endTime}
+                            {shift.value > 0 &&
+                              ` · ${formatCurrency(shift.value)}`}
+                          </p>
+                        </div>
+                        {shift.paid && (
+                          <span className="rounded-full bg-emerald-600/20 px-2.5 py-0.5 text-xs font-medium text-emerald-400">
+                            Pago
+                          </span>
+                        )}
+                      </button>
+                      <button
+                        onClick={() => setRepeatShift(shift)}
+                        className="flex w-11 shrink-0 items-center justify-center rounded-xl border border-slate-700 bg-slate-800/50 text-slate-400 transition hover:border-teal-600 hover:text-teal-400"
+                        title="Repetir plantão"
+                        aria-label="Repetir plantão"
+                      >
+                        <Repeat size={18} />
+                      </button>
+                    </div>
                   );
                 })}
               {data.shifts.filter((s) => s.date === selectedDate).length === 0 && (
@@ -368,6 +447,14 @@ function App() {
         onUpdate={handleUpdateShift}
         onDelete={handleDeleteShift}
         onSaveTemplate={handleSaveTemplate}
+      />
+
+      <RepeatModal
+        open={repeatShift !== null}
+        onClose={() => setRepeatShift(null)}
+        shift={repeatShift}
+        existing={data.shifts}
+        onConfirm={handleConfirmRepeat}
       />
 
       <TemplateModal
