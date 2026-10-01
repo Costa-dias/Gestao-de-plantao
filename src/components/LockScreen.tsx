@@ -1,7 +1,9 @@
 import { useState, useEffect, useCallback } from 'react';
 import { Lock, Shield, Delete, AlertTriangle } from 'lucide-react';
-import { validatePin } from '@/lib/validation';
+import { checkNewPin } from '@/lib/validation';
 import { isPinSet } from '@/lib/storage';
+import { ThemeToggle } from '@/components/ThemeToggle';
+import { SiteFooter } from '@/components/SiteFooter';
 
 interface LockScreenProps {
   mode: 'setup' | 'unlock';
@@ -74,9 +76,10 @@ export function LockScreen({
   // Handle setup completion
   const handleSubmitSetup = useCallback(() => {
     if (step === 'create') {
-      const err = validatePin(pin);
+      const err = checkNewPin(pin);
       if (err) {
         setLocalError(err);
+        setPin('');
         return;
       }
       setStep('confirm');
@@ -102,7 +105,14 @@ export function LockScreen({
   const dotsLength = mode === 'setup' && step === 'create' ? pin.length : currentPin.length;
 
   return (
-    <div className="flex min-h-screen flex-col items-center justify-center bg-gradient-to-br from-slate-950 via-slate-900 to-teal-950 px-6">
+    <div className="relative flex min-h-screen flex-col items-center justify-center bg-gradient-to-br from-slate-950 via-slate-900 to-teal-950 px-6 py-10">
+      <div
+        className="absolute right-4"
+        style={{ top: 'calc(env(safe-area-inset-top, 0px) + 1rem)' }}
+      >
+        <ThemeToggle />
+      </div>
+
       <div className="mb-8 flex flex-col items-center gap-3">
         <div className="flex h-20 w-20 items-center justify-center rounded-2xl bg-teal-600/20 border border-teal-600/30">
           <Shield size={40} className="text-teal-400" />
@@ -207,6 +217,8 @@ export function LockScreen({
           Este PIN protege o acesso aos seus plantões e dados financeiros. Não há como recuperá-lo se esquecer.
         </p>
       )}
+
+      <SiteFooter className="mt-8 text-center" />
     </div>
   );
 }
