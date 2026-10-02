@@ -131,8 +131,8 @@ export function LockScreen({
       
       {/* Background Orbs */}
       <div className="pointer-events-none absolute inset-0 overflow-hidden z-0 dark:hidden">
-        <div className="absolute top-12 left-10 h-72 w-72 rounded-full bg-teal-200/40 blur-3xl" />
-        <div className="absolute top-1/3 right-10 h-64 w-64 rounded-full bg-emerald-200/40 blur-3xl" />
+        <div className="absolute top-12 left-10 h-72 w-72 rounded-full bg-teal-200/30 blur-3xl" />
+        <div className="absolute top-1/3 right-10 h-64 w-64 rounded-full bg-emerald-200/30 blur-3xl" />
       </div>
 
       <div className="pointer-events-none absolute inset-0 overflow-hidden z-0 hidden dark:block">
@@ -162,8 +162,8 @@ export function LockScreen({
           <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-teal-600/10 dark:bg-teal-600/20 border border-teal-600/30 text-teal-700 dark:text-teal-400 shadow-sm">
             <Shield size={32} />
           </div>
-          <h1 className="text-2xl font-extrabold text-slate-900 dark:text-white tracking-tight">EscalaFácil</h1>
-          <p className="text-xs text-slate-600 dark:text-slate-400 font-medium">
+          <h1 className="text-2xl font-black !text-slate-900 dark:!text-white tracking-tight">EscalaFácil</h1>
+          <p className="text-xs !text-slate-700 dark:!text-slate-300 font-semibold">
             {mode === 'setup'
               ? step === 'create'
                 ? 'Crie um PIN de acesso (4 a 6 dígitos)'
@@ -184,7 +184,7 @@ export function LockScreen({
               className={`h-3.5 w-3.5 rounded-full transition-all duration-200 ${
                 i < dotsLength
                   ? 'bg-teal-600 dark:bg-teal-400 scale-110 shadow-md shadow-teal-500/30'
-                  : 'border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900/80'
+                  : 'border border-slate-400 dark:border-slate-700 bg-white dark:bg-slate-900/80'
               }`}
             />
           ))}
@@ -192,14 +192,14 @@ export function LockScreen({
 
         {/* Error Notification */}
         {displayError && (
-          <div className="mb-6 flex w-full items-center gap-2 rounded-xl border border-red-500/20 bg-red-500/10 px-4 py-2.5 text-xs text-red-600 dark:text-red-400">
+          <div className="mb-6 flex w-full items-center gap-2 rounded-xl border border-red-500/30 bg-red-500/10 px-4 py-2.5 text-xs !text-red-700 dark:!text-red-400 font-medium">
             <AlertTriangle size={16} className="shrink-0" />
-            <span className="font-medium">{displayError}</span>
+            <span>{displayError}</span>
           </div>
         )}
 
         {isLocked && (
-          <div className="mb-6 flex w-full items-center gap-2 rounded-xl border border-amber-500/20 bg-amber-500/10 px-4 py-2.5 text-xs text-amber-600 dark:text-amber-400">
+          <div className="mb-6 flex w-full items-center gap-2 rounded-xl border border-amber-500/30 bg-amber-500/10 px-4 py-2.5 text-xs !text-amber-700 dark:!text-amber-400 font-medium">
             <AlertTriangle size={16} className="shrink-0" />
             <span>Aguarde {lockedSeconds}s para tentar novamente.</span>
           </div>
@@ -214,7 +214,7 @@ export function LockScreen({
               onClick={() => handleDigit(d)}
               disabled={isLocked}
               aria-label={`Dígito ${d}`}
-              className="flex h-16 items-center justify-center rounded-2xl border border-slate-300 dark:border-slate-800 bg-white dark:bg-slate-900/90 text-2xl font-bold text-slate-900 dark:text-white shadow-sm transition-all hover:border-teal-500 dark:hover:border-teal-500 hover:bg-slate-100 dark:hover:bg-slate-800 active:scale-95 disabled:opacity-40"
+              className="flex h-16 items-center justify-center rounded-2xl border border-slate-300 dark:border-slate-800 bg-white dark:bg-slate-900/90 text-2xl font-bold !text-slate-900 dark:!text-white shadow-sm transition-all hover:border-teal-500 dark:hover:border-teal-500 hover:bg-slate-100 dark:hover:bg-slate-800 active:scale-95 disabled:opacity-40"
             >
               {d}
             </button>
@@ -224,7 +224,7 @@ export function LockScreen({
               <button
                 type="button"
                 onClick={handleSubmitSetup}
-                className="text-xs font-bold text-teal-700 dark:text-teal-400 hover:underline active:scale-95 transition-all"
+                className="text-xs font-bold !text-teal-700 dark:!text-teal-400 hover:underline active:scale-95 transition-all"
               >
                 Próximo
               </button>
@@ -237,7 +237,7 @@ export function LockScreen({
                   setPin('');
                 }}
                 disabled={isLocked}
-                className="text-xs font-bold text-teal-700 dark:text-teal-400 hover:underline disabled:opacity-40 active:scale-95 transition-all"
+                className="text-xs font-bold !text-teal-700 dark:!text-teal-400 hover:underline disabled:opacity-40 active:scale-95 transition-all"
               >
                 Entrar
               </button>
@@ -248,7 +248,7 @@ export function LockScreen({
             onClick={() => handleDigit('0')}
             disabled={isLocked}
             aria-label="Dígito 0"
-            className="flex h-16 items-center justify-center rounded-2xl border border-slate-300 dark:border-slate-800 bg-white dark:bg-slate-900/90 text-2xl font-bold text-slate-900 dark:text-white shadow-sm transition-all hover:border-teal-500 dark:hover:border-teal-500 hover:bg-slate-100 dark:hover:bg-slate-800 active:scale-95 disabled:opacity-40"
+            className="flex h-16 items-center justify-center rounded-2xl border border-slate-300 dark:border-slate-800 bg-white dark:bg-slate-900/90 text-2xl font-bold !text-slate-900 dark:!text-white shadow-sm transition-all hover:border-teal-500 dark:hover:border-teal-500 hover:bg-slate-100 dark:hover:bg-slate-800 active:scale-95 disabled:opacity-40"
           >
             0
           </button>
@@ -257,20 +257,20 @@ export function LockScreen({
             onClick={handleBackspace}
             disabled={isLocked}
             aria-label="Apagar último dígito"
-            className="flex h-16 items-center justify-center rounded-2xl border border-slate-300 dark:border-slate-800 bg-white dark:bg-slate-900/90 text-slate-900 dark:text-slate-300 shadow-sm transition-all hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-slate-900 dark:hover:text-white active:scale-95 disabled:opacity-40"
+            className="flex h-16 items-center justify-center rounded-2xl border border-slate-300 dark:border-slate-800 bg-white dark:bg-slate-900/90 !text-slate-900 dark:!text-slate-300 shadow-sm transition-all hover:bg-slate-100 dark:hover:bg-slate-800 hover:!text-slate-900 dark:hover:!text-white active:scale-95 disabled:opacity-40"
           >
             <Delete size={22} />
           </button>
         </div>
 
         {/* Footer */}
-        <div className="mt-8 flex items-center gap-2 text-xs text-slate-600 dark:text-slate-400">
+        <div className="mt-8 flex items-center gap-2 text-xs !text-slate-700 dark:!text-slate-400 font-medium">
           <Lock size={12} />
           <span>Seus dados são criptografados localmente com AES-256</span>
         </div>
 
         {mode === 'setup' && hasPin === false && (
-          <p className="mt-3 text-center text-xs text-slate-600 dark:text-slate-400 leading-relaxed">
+          <p className="mt-3 text-center text-xs !text-slate-700 dark:!text-slate-400 font-medium leading-relaxed">
             Este PIN protege o acesso aos seus plantões e dados financeiros. Não há como recuperá-lo se esquecer.
           </p>
         )}
