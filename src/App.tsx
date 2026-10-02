@@ -75,6 +75,16 @@ function App() {
   const month = now.getMonth();
   const shiftCount = data?.shifts.length ?? 0;
 
+  // Garantia de sincronização do tema com a tag <html> (Resolve o bug visual)
+  useEffect(() => {
+    const root = document.documentElement;
+    if (theme === 'dark') {
+      root.classList.add('dark');
+    } else {
+      root.classList.remove('dark');
+    }
+  }, [theme]);
+
   // Default selected date = today
   useEffect(() => {
     if (phase === 'unlocked' && !selectedDate) {
