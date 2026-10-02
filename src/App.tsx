@@ -21,6 +21,7 @@ import {
   snoozeBackupReminder,
 } from '@/lib/backupReminder';
 import { LockScreen } from '@/components/LockScreen';
+import { LandingPage } from '@/components/LandingPage';
 import { MonthView } from '@/components/MonthView';
 import { ShiftModal } from '@/components/ShiftModal';
 import { TemplateModal } from '@/components/TemplateModal';
@@ -59,6 +60,7 @@ function App() {
   const { toasts, showToast, dismissToast } = useToast();
   const { theme, toggle: toggleTheme } = useTheme();
 
+  const [showLanding, setShowLanding] = useState(true);
   const [now, setNow] = useState(new Date());
   const [selectedDate, setSelectedDate] = useState<string | null>(null);
   const [shiftModalOpen, setShiftModalOpen] = useState(false);
@@ -140,7 +142,6 @@ function App() {
   const handleAddShift = useCallback(() => {
     setEditingShift(null);
     if (selectedDate) {
-      // If selected date is not in current month view, navigate to its month
       const d = fromISODate(selectedDate);
       if (d.getMonth() !== month || d.getFullYear() !== year) {
         setNow(new Date(d.getFullYear(), d.getMonth(), 1));
@@ -207,6 +208,11 @@ function App() {
     setBackupDue(false);
   }, []);
 
+  const handleAppLock = useCallback(() => {
+    handleLock();
+    setShowLanding(true);
+  }, [handleLock]);
+
   // Render phases
   if (phase === 'loading') {
     return (
@@ -219,6 +225,11 @@ function App() {
         </div>
       </div>
     );
+  }
+
+  // Se estiver na Landing Page
+  if (showLanding) {
+    return <LandingPage onEnter={() => setShowLanding(false)} />;
   }
 
   if (phase === 'setup' || phase === 'locked') {
@@ -288,7 +299,7 @@ function App() {
               <SettingsIcon size={20} />
             </button>
             <button
-              onClick={handleLock}
+              onClick={handleAppLock}
               className="rounded-lg p-2 text-slate-600 dark:text-slate-400 transition hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-slate-900 dark:hover:text-slate-100"
               title="Bloquear"
               aria-label="Bloquear aplicativo"
