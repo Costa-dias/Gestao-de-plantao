@@ -52,7 +52,7 @@ export function ShiftModal({
       setDate(shift.date);
       setStartTime(shift.startTime);
       setEndTime(shift.endTime);
-      setValue(shift.value ? String(shift.value) : '');
+      setValue(shift.value !== undefined && shift.value !== null ? String(shift.value) : '');
       setPaymentDate(shift.paymentDate ?? '');
       setPaid(shift.paid);
       setNotes(shift.notes ?? '');
@@ -75,7 +75,7 @@ export function ShiftModal({
     setColor(tpl.color);
     setStartTime(tpl.startTime);
     setEndTime(tpl.endTime);
-    setValue(tpl.value ? String(tpl.value) : '');
+    setValue(tpl.value !== undefined && tpl.value !== null ? String(tpl.value) : '');
     setNotes(tpl.notes ?? '');
   }, []);
 
@@ -122,7 +122,6 @@ export function ShiftModal({
     });
   }, [location, color, startTime, endTime, value, notes, onSaveTemplate]);
 
-
   return (
     <Modal
       open={open}
@@ -133,6 +132,7 @@ export function ShiftModal({
         <>
           {isEdit && (
             <Button
+              type="button"
               variant="danger"
               size="md"
               onClick={() => {
@@ -146,10 +146,10 @@ export function ShiftModal({
             </Button>
           )}
           <div className="flex-1" />
-          <Button variant="ghost" onClick={onClose}>
+          <Button type="button" variant="ghost" onClick={onClose}>
             Cancelar
           </Button>
-          <Button variant="primary" onClick={handleSave}>
+          <Button type="button" variant="primary" onClick={handleSave}>
             <Save size={16} /> {isEdit ? 'Salvar' : 'Adicionar'}
           </Button>
         </>
@@ -158,16 +158,18 @@ export function ShiftModal({
       {/* Templates */}
       {templates.length > 0 && (
         <div className="mb-5">
-          <div className="mb-2 flex items-center gap-2 text-sm font-medium text-slate-300">
-            <Layers size={15} className="text-teal-400" />
+          <div className="mb-2 flex items-center gap-2 text-sm font-medium text-slate-700 dark:text-slate-300">
+            <Layers size={15} className="text-teal-600 dark:text-teal-400" />
             Modelos
           </div>
           <div className="flex flex-wrap gap-2">
             {templates.map((tpl) => (
               <button
                 key={tpl.id}
+                type="button"
                 onClick={() => handleApplyTemplate(tpl)}
-                className="flex items-center gap-2 rounded-lg border border-slate-700 bg-slate-800 px-3 py-1.5 text-xs text-slate-300 transition hover:border-teal-600 hover:bg-slate-700"
+                aria-label={`Aplicar modelo ${tpl.name}`}
+                className="flex items-center gap-2 rounded-lg border border-slate-200 dark:border-slate-700 bg-slate-100 dark:bg-slate-800 px-3 py-1.5 text-xs text-slate-700 dark:text-slate-300 transition hover:border-teal-600 dark:hover:border-teal-500 hover:bg-slate-200 dark:hover:bg-slate-700"
               >
                 <span
                   className="h-3 w-3 rounded-full"
@@ -183,7 +185,7 @@ export function ShiftModal({
       <div className="space-y-4">
         <Input
           label="Local do Plantão *"
-          placeholder="Ex: Santa Saúde, Hospital Central..."
+          placeholder="Ex: Hospital Central, UPA..."
           value={location}
           onChange={(e) => setLocation(e.target.value)}
           error={errors.location}
@@ -191,13 +193,13 @@ export function ShiftModal({
         />
 
         <div>
-          <label className="mb-2 block text-sm font-medium text-slate-300">
+          <label className="mb-2 block text-sm font-medium text-slate-700 dark:text-slate-300">
             Cor da Etiqueta
           </label>
           <ColorPicker value={color} onChange={setColor} />
         </div>
 
-        <div className="grid grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <Input
             label="Data"
             type="date"
@@ -223,7 +225,7 @@ export function ShiftModal({
           </div>
         </div>
 
-        <div className="grid grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <Input
             label="Valor total do plantão (R$)"
             type="number"
@@ -244,25 +246,27 @@ export function ShiftModal({
         </div>
 
         {/* Summary */}
-        <div className="rounded-xl border border-slate-700 bg-slate-800/50 px-4 py-3">
-          {value && (
-            <div className="flex items-center justify-between text-sm">
-              <span className="text-slate-400">Valor do plantão</span>
-              <span className="font-semibold text-teal-400">
-                R$ {parseFloat(value).toFixed(2).replace('.', ',')}
-              </span>
-            </div>
-          )}
-          {paymentDate && (
-            <div className="mt-1.5 flex items-center justify-between text-sm">
-              <span className="text-slate-400">Pagamento em</span>
-              <span className="text-slate-300">{formatDateBR(paymentDate)}</span>
-            </div>
-          )}
-        </div>
+        {(value !== '' || paymentDate !== '') && (
+          <div className="rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/50 px-4 py-3">
+            {value !== '' && (
+              <div className="flex items-center justify-between text-sm">
+                <span className="text-slate-600 dark:text-slate-400">Valor do plantão</span>
+                <span className="font-semibold text-teal-600 dark:text-teal-400">
+                  R$ {parseFloat(value || '0').toFixed(2).replace('.', ',')}
+                </span>
+              </div>
+            )}
+            {paymentDate !== '' && (
+              <div className="mt-1.5 flex items-center justify-between text-sm">
+                <span className="text-slate-600 dark:text-slate-400">Pagamento em</span>
+                <span className="text-slate-800 dark:text-slate-300">{formatDateBR(paymentDate)}</span>
+              </div>
+            )}
+          </div>
+        )}
 
-        <div className="flex items-center justify-between rounded-xl border border-slate-700 bg-slate-800/50 px-4 py-3">
-          <span className="text-sm font-medium text-slate-300">
+        <div className="flex items-center justify-between rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/50 px-4 py-3">
+          <span className="text-sm font-medium text-slate-700 dark:text-slate-300">
             Marcar como pago
           </span>
           <Toggle checked={paid} onChange={setPaid} />
@@ -280,8 +284,9 @@ export function ShiftModal({
 
         {!isEdit && location.trim() && (
           <button
+            type="button"
             onClick={handleSaveAsTemplate}
-            className="flex w-full items-center justify-center gap-2 rounded-xl border border-dashed border-slate-600 py-2.5 text-sm text-slate-400 transition hover:border-teal-600 hover:text-teal-400"
+            className="flex w-full items-center justify-center gap-2 rounded-xl border border-dashed border-slate-300 dark:border-slate-600 py-2.5 text-sm text-slate-600 dark:text-slate-400 transition hover:border-teal-600 dark:hover:border-teal-500 hover:text-teal-600 dark:hover:text-teal-400"
           >
             <Layers size={15} />
             Salvar como modelo
