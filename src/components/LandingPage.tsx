@@ -21,7 +21,7 @@ export function LandingPage({ onEnter, theme, onToggleTheme }: LandingPageProps)
   const isDark = theme === 'dark';
 
   return (
-    <div className={`relative flex min-h-screen flex-col transition-colors selection:bg-teal-500 selection:text-white overflow-hidden ${isDark ? 'bg-slate-950 text-slate-100' : 'bg-slate-50 text-slate-900'}`}>
+    <div className="relative flex min-h-screen flex-col bg-slate-50 text-slate-900 dark:bg-slate-950 dark:text-slate-100 transition-colors duration-200 selection:bg-teal-500 selection:text-white overflow-hidden">
       
       {/* Background Orbs */}
       <div className="pointer-events-none absolute inset-0 overflow-hidden z-0 dark:hidden">
@@ -39,7 +39,7 @@ export function LandingPage({ onEnter, theme, onToggleTheme }: LandingPageProps)
           <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-teal-600 text-white shadow-md shadow-teal-600/20">
             <Stethoscope size={22} />
           </div>
-          <span className="font-extrabold text-xl tracking-tight" style={{ color: isDark ? '#ffffff' : '#0f172a' }}>
+          <span className="font-extrabold text-xl tracking-tight text-slate-900 dark:text-white">
             EscalaFácil
           </span>
           <span className="hidden sm:inline-block rounded-full border border-teal-600/20 bg-teal-500/10 px-2.5 py-0.5 text-xs font-semibold text-teal-700 dark:text-teal-400">
@@ -48,7 +48,7 @@ export function LandingPage({ onEnter, theme, onToggleTheme }: LandingPageProps)
         </div>
 
         <div className="flex items-center gap-4">
-          <nav className="hidden md:flex items-center gap-6 text-sm font-medium opacity-80 hover:opacity-100">
+          <nav className="hidden md:flex items-center gap-6 text-sm font-medium text-slate-600 dark:text-slate-300">
             <a href="#recursos" className="hover:text-teal-600 dark:hover:text-teal-400 transition">Recursos</a>
             <a href="#como-funciona" className="hover:text-teal-600 dark:hover:text-teal-400 transition">Como Funciona</a>
             <a href="#privacidade" className="hover:text-teal-600 dark:hover:text-teal-400 transition">Privacidade</a>
@@ -66,8 +66,7 @@ export function LandingPage({ onEnter, theme, onToggleTheme }: LandingPageProps)
 
           <button
             onClick={onEnter}
-            className="text-sm font-bold px-3 py-2 transition hover:opacity-80"
-            style={{ color: isDark ? '#f1f5f9' : '#1e293b' }}
+            className="text-sm font-bold text-slate-700 dark:text-slate-200 px-3 py-2 transition hover:opacity-80"
           >
             Entrar
           </button>
@@ -90,21 +89,15 @@ export function LandingPage({ onEnter, theme, onToggleTheme }: LandingPageProps)
           <span>Gestão inteligente de plantões hospitalares</span>
         </div>
 
-        {/* Título Principal com cor inline forçada para evitar o texto fantasma */}
-        <h1 
-          className="text-4xl sm:text-5xl md:text-6xl font-black tracking-tight max-w-4xl mx-auto leading-tight"
-          style={{ color: isDark ? '#ffffff' : '#0f172a' }}
-        >
+        {/* Título Principal */}
+        <h1 className="text-4xl sm:text-5xl md:text-6xl font-black tracking-tight max-w-4xl mx-auto leading-tight text-slate-900 dark:text-white">
           Organize sua rotina médica sem complicações e com{' '}
-          <span className="text-teal-600 dark:text-teal-400" style={{ color: '#0d9488' }}>
+          <span className="text-teal-600 dark:text-teal-400">
             privacidade total
           </span>
         </h1>
 
-        <p 
-          className="mt-6 text-base sm:text-lg font-medium max-w-2xl mx-auto leading-relaxed"
-          style={{ color: isDark ? '#cbd5e1' : '#334155' }}
-        >
+        <p className="mt-6 text-base sm:text-lg font-medium max-w-2xl mx-auto leading-relaxed text-slate-600 dark:text-slate-300">
           O EscalaFácil ajuda profissionais da saúde a controlar plantões, valores a receber e repetições de escala. Sem cadastros expostos, com dados armazenados diretamente no seu dispositivo.
         </p>
 
@@ -120,45 +113,45 @@ export function LandingPage({ onEnter, theme, onToggleTheme }: LandingPageProps)
 
         {/* Feature Cards Grid */}
         <div id="recursos" className="mt-16 grid grid-cols-1 md:grid-cols-3 gap-6 w-full text-left">
-          <div className="rounded-2xl border border-slate-200 dark:border-slate-800 bg-white/90 dark:bg-slate-900/80 p-6 backdrop-blur-sm shadow-sm transition">
+          <div className="rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900/80 p-6 backdrop-blur-sm shadow-sm transition">
             <div className="mb-4 inline-flex rounded-xl bg-teal-500/10 p-3 text-teal-600 dark:text-teal-400">
               <Calendar size={24} />
             </div>
-            <h3 className="text-lg font-bold mb-2" style={{ color: isDark ? '#ffffff' : '#0f172a' }}>
+            <h3 className="text-lg font-bold mb-2 text-slate-900 dark:text-white">
               Visualização Clara
             </h3>
-            <p className="text-sm font-medium leading-relaxed" style={{ color: isDark ? '#94a3b8' : '#475569' }}>
+            <p className="text-sm font-medium leading-relaxed text-slate-600 dark:text-slate-400">
               Calendário mensal com marcadores coloridos por hospital e relatórios de turnos organizados.
             </p>
           </div>
 
-          <div className="rounded-2xl border border-slate-200 dark:border-slate-800 bg-white/90 dark:bg-slate-900/80 p-6 backdrop-blur-sm shadow-sm transition">
+          <div className="rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900/80 p-6 backdrop-blur-sm shadow-sm transition">
             <div className="mb-4 inline-flex rounded-xl bg-teal-500/10 p-3 text-teal-600 dark:text-teal-400">
               <DollarSign size={24} />
             </div>
-            <h3 className="text-lg font-bold mb-2" style={{ color: isDark ? '#ffffff' : '#0f172a' }}>
+            <h3 className="text-lg font-bold mb-2 text-slate-900 dark:text-white">
               Cálculo Automático
             </h3>
-            <p className="text-sm font-medium leading-relaxed" style={{ color: isDark ? '#94a3b8' : '#475569' }}>
+            <p className="text-sm font-medium leading-relaxed text-slate-600 dark:text-slate-400">
               Acompanhe totais previstos e valores já pagos no mês sem precisar de planilhas complexas.
             </p>
           </div>
 
-          <div className="rounded-2xl border border-slate-200 dark:border-slate-800 bg-white/90 dark:bg-slate-900/80 p-6 backdrop-blur-sm shadow-sm transition">
+          <div className="rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900/80 p-6 backdrop-blur-sm shadow-sm transition">
             <div className="mb-4 inline-flex rounded-xl bg-teal-500/10 p-3 text-teal-600 dark:text-teal-400">
               <ShieldCheck size={24} />
             </div>
-            <h3 className="text-lg font-bold mb-2" style={{ color: isDark ? '#ffffff' : '#0f172a' }}>
+            <h3 className="text-lg font-bold mb-2 text-slate-900 dark:text-white">
               Segurança por PIN
             </h3>
-            <p className="text-sm font-medium leading-relaxed" style={{ color: isDark ? '#94a3b8' : '#475569' }}>
+            <p className="text-sm font-medium leading-relaxed text-slate-600 dark:text-slate-400">
               Bloqueio rápido e criptografia local com padrão AES-256 para total proteção dos seus dados.
             </p>
           </div>
         </div>
 
         {/* Quick Highlights Bar */}
-        <div id="privacidade" className="mt-12 flex flex-wrap items-center justify-center gap-8 py-4 border-y border-slate-200 dark:border-slate-800 text-xs font-semibold w-full" style={{ color: isDark ? '#cbd5e1' : '#334155' }}>
+        <div id="privacidade" className="mt-12 flex flex-wrap items-center justify-center gap-8 py-4 border-y border-slate-200 dark:border-slate-800 text-xs font-semibold text-slate-600 dark:text-slate-400 w-full">
           <div className="flex items-center gap-2">
             <CheckCircle2 size={16} className="text-teal-600 dark:text-teal-400" />
             <span>100% Offline e Privado</span>
@@ -171,83 +164,6 @@ export function LandingPage({ onEnter, theme, onToggleTheme }: LandingPageProps)
             <CheckCircle2 size={16} className="text-teal-600 dark:text-teal-400" />
             <span>Relatórios e Extratos em PDF</span>
           </div>
-        </div>
-
-        {/* "Como funciona na prática" Section */}
-        <div id="como-funciona" className="mt-20 w-full text-center">
-          <h2 className="text-2xl sm:text-3xl font-extrabold tracking-tight" style={{ color: isDark ? '#ffffff' : '#0f172a' }}>
-            Como funciona na prática
-          </h2>
-          <p className="mt-2 text-sm font-medium" style={{ color: isDark ? '#94a3b8' : '#64748b' }}>
-            Projetado para se ajustar ao fluxo intenso da rotina médica.
-          </p>
-
-          <div className="mt-10 grid grid-cols-1 md:grid-cols-3 gap-6 text-left">
-            <div className="rounded-2xl border border-slate-200 dark:border-slate-800 bg-white/80 dark:bg-slate-900/60 p-6">
-              <span className="text-2xl font-black text-teal-600 dark:text-teal-500">01</span>
-              <h4 className="mt-2 text-base font-bold" style={{ color: isDark ? '#ffffff' : '#0f172a' }}>Crie seu PIN de Acesso</h4>
-              <p className="mt-1 text-xs leading-relaxed" style={{ color: isDark ? '#94a3b8' : '#64748b' }}>
-                No primeiro acesso, defina uma senha numérica simples para proteger as informações dos seus plantões.
-              </p>
-            </div>
-
-            <div className="rounded-2xl border border-slate-200 dark:border-slate-800 bg-white/80 dark:bg-slate-900/60 p-6">
-              <span className="text-2xl font-black text-teal-600 dark:text-teal-500">02</span>
-              <h4 className="mt-2 text-base font-bold" style={{ color: isDark ? '#ffffff' : '#0f172a' }}>Cadastre seus Locais e Modelos</h4>
-              <p className="mt-1 text-xs leading-relaxed" style={{ color: isDark ? '#94a3b8' : '#64748b' }}>
-                Salve hospitais e horários recorrentes em modelos rápidos para adicionar plantões em poucos toques.
-              </p>
-            </div>
-
-            <div className="rounded-2xl border border-slate-200 dark:border-slate-800 bg-white/80 dark:bg-slate-900/60 p-6">
-              <span className="text-2xl font-black text-teal-600 dark:text-teal-500">03</span>
-              <h4 className="mt-2 text-base font-bold" style={{ color: isDark ? '#ffffff' : '#0f172a' }}>Acompanhe no Calendário</h4>
-              <p className="mt-1 text-xs leading-relaxed" style={{ color: isDark ? '#94a3b8' : '#64748b' }}>
-                Visualize seus plantões organizados por dia, status de pagamento (pago/pendente) e totais financeiros.
-              </p>
-            </div>
-
-            <div className="rounded-2xl border border-slate-200 dark:border-slate-800 bg-white/80 dark:bg-slate-900/60 p-6">
-              <span className="text-2xl font-black text-teal-600 dark:text-teal-500">04</span>
-              <h4 className="mt-2 text-base font-bold" style={{ color: isDark ? '#ffffff' : '#0f172a' }}>Repita Plantões Facilmente</h4>
-              <p className="mt-1 text-xs leading-relaxed" style={{ color: isDark ? '#94a3b8' : '#64748b' }}>
-                Multiplique plantões em dias específicos da semana com o recurso de repetição inteligente.
-              </p>
-            </div>
-
-            <div className="rounded-2xl border border-slate-200 dark:border-slate-800 bg-white/80 dark:bg-slate-900/60 p-6">
-              <span className="text-2xl font-black text-teal-600 dark:text-teal-500">05</span>
-              <h4 className="mt-2 text-base font-bold" style={{ color: isDark ? '#ffffff' : '#0f172a' }}>Gere Extratos em PDF</h4>
-              <p className="mt-1 text-xs leading-relaxed" style={{ color: isDark ? '#94a3b8' : '#64748b' }}>
-                Exporte relatórios detalhados para conferência de pagamentos ao final do mês.
-              </p>
-            </div>
-
-            <div className="rounded-2xl border border-slate-200 dark:border-slate-800 bg-white/80 dark:bg-slate-900/60 p-6">
-              <span className="text-2xl font-black text-teal-600 dark:text-teal-500">06</span>
-              <h4 className="mt-2 text-base font-bold" style={{ color: isDark ? '#ffffff' : '#0f172a' }}>Faça Backups Seguros</h4>
-              <p className="mt-1 text-xs leading-relaxed" style={{ color: isDark ? '#94a3b8' : '#64748b' }}>
-                Exporte e importe backups facilmente para garantir que você nunca perca o histórico da sua escala.
-              </p>
-            </div>
-          </div>
-        </div>
-
-        {/* Final Call to Action */}
-        <div className="mt-20 w-full flex flex-col items-center text-center border-t border-slate-200 dark:border-slate-800 pt-16">
-          <h3 className="text-2xl sm:text-3xl font-extrabold tracking-tight" style={{ color: isDark ? '#ffffff' : '#0f172a' }}>
-            Pronto para simplificar seus plantões?
-          </h3>
-          <p className="mt-2 text-xs sm:text-sm font-medium" style={{ color: isDark ? '#94a3b8' : '#64748b' }}>
-            Acesse agora sem necessidade de criar conta com senha ou dados pessoais.
-          </p>
-          <button
-            onClick={onEnter}
-            className="mt-6 flex items-center justify-center gap-2 rounded-2xl bg-teal-600 hover:bg-teal-700 active:scale-95 text-white px-8 py-3.5 font-bold text-sm shadow-lg shadow-teal-600/25 transition"
-          >
-            <span>Acessar o App Agora</span>
-            <ArrowRight size={18} />
-          </button>
         </div>
 
       </main>
