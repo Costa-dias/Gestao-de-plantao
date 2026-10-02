@@ -36,7 +36,7 @@ export function LandingPage({ onEnter, theme, onToggleTheme }: LandingPageProps)
       <header className="sticky top-0 z-50 backdrop-blur-md bg-white/80 dark:bg-slate-950/80 border-b border-slate-200 dark:border-slate-800 transition-colors">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between">
           <div className="flex items-center gap-2.5">
-            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-teal-600/20 border border-teal-600/30 text-teal-600 dark:text-teal-400">
+            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-teal-600/10 dark:bg-teal-600/20 border border-teal-600/30 text-teal-700 dark:text-teal-400">
               <Stethoscope size={22} />
             </div>
             <div>
@@ -72,7 +72,7 @@ export function LandingPage({ onEnter, theme, onToggleTheme }: LandingPageProps)
             </button>
             <button
               onClick={onEnter}
-              className="px-4 py-2 text-sm font-semibold text-white bg-teal-600 hover:bg-teal-500 rounded-xl transition shadow-lg shadow-teal-600/30 flex items-center gap-1.5"
+              className="px-4 py-2 text-sm font-semibold text-white bg-teal-600 hover:bg-teal-500 rounded-xl transition shadow-lg shadow-teal-600/20 flex items-center gap-1.5"
             >
               Começar agora <ArrowRight size={16} />
             </button>
@@ -142,13 +142,13 @@ export function LandingPage({ onEnter, theme, onToggleTheme }: LandingPageProps)
 
       {/* Hero Section */}
       <section className="relative z-10 pt-16 pb-20 md:pt-24 md:pb-28 max-w-6xl mx-auto px-4 sm:px-6 text-center">
-        <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-slate-200/70 dark:bg-slate-800/80 border border-slate-300/80 dark:border-slate-700/80 text-teal-700 dark:text-teal-300 text-xs font-medium mb-6">
+        <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-teal-50 dark:bg-slate-800/80 border border-teal-200 dark:border-slate-700/80 text-teal-800 dark:text-teal-300 text-xs font-medium mb-6">
           <Sparkles size={14} className="text-teal-600 dark:text-teal-400" />
           <span>Gestão inteligente de plantões hospitalares</span>
         </div>
 
         <h1 className="text-4xl sm:text-5xl md:text-6xl font-extrabold tracking-tight text-slate-900 dark:text-white max-w-4xl mx-auto leading-tight">
-          Organize sua rotina médica sem complicações e com <span className="text-transparent bg-clip-text bg-gradient-to-r from-teal-600 via-emerald-500 to-cyan-500 dark:from-teal-400 dark:via-emerald-400 dark:to-cyan-300">privacidade total</span>
+          Organize sua rotina médica sem complicações e com <span className="text-teal-600 dark:text-transparent dark:bg-clip-text dark:bg-gradient-to-r dark:from-teal-400 dark:via-emerald-400 dark:to-cyan-300">privacidade total</span>
         </h1>
 
         <p className="mt-6 text-base sm:text-lg text-slate-600 dark:text-slate-400 max-w-2xl mx-auto leading-relaxed">
@@ -158,7 +158,7 @@ export function LandingPage({ onEnter, theme, onToggleTheme }: LandingPageProps)
         <div className="mt-8 flex flex-col sm:flex-row items-center justify-center gap-4">
           <button
             onClick={onEnter}
-            className="w-full sm:w-auto px-8 py-3.5 rounded-2xl bg-teal-600 hover:bg-teal-500 text-white font-semibold text-base transition shadow-xl shadow-teal-600/30 flex items-center justify-center gap-2 group"
+            className="w-full sm:w-auto px-8 py-3.5 rounded-2xl bg-teal-600 hover:bg-teal-500 text-white font-semibold text-base transition shadow-xl shadow-teal-600/20 flex items-center justify-center gap-2 group"
           >
             Acessar Meu Painel
             <ArrowRight size={18} className="group-hover:translate-x-1 transition-transform" />
@@ -190,15 +190,15 @@ export function LandingPage({ onEnter, theme, onToggleTheme }: LandingPageProps)
         <div className="max-w-6xl mx-auto px-4 sm:px-6 flex flex-wrap items-center justify-around gap-6 text-center sm:text-left">
           <div className="flex items-center gap-3">
             <CheckCircle2 className="text-emerald-600 dark:text-emerald-400 shrink-0" size={20} />
-            <span className="text-sm text-slate-700 dark:text-slate-300 font-medium">100% Offline e Privado</span>
+            <span className="text-sm text-slate-800 dark:text-slate-300 font-medium">100% Offline e Privado</span>
           </div>
           <div className="flex items-center gap-3">
             <CheckCircle2 className="text-emerald-600 dark:text-emerald-400 shrink-0" size={20} />
-            <span className="text-sm text-slate-700 dark:text-slate-300 font-medium">Modelos Customizados</span>
+            <span className="text-sm text-slate-800 dark:text-slate-300 font-medium">Modelos Customizados</span>
           </div>
           <div className="flex items-center gap-3">
             <CheckCircle2 className="text-emerald-600 dark:text-emerald-400 shrink-0" size={20} />
-            <span className="text-sm text-slate-700 dark:text-slate-300 font-medium">Relatórios e Extratos em PDF</span>
+            <span className="text-sm text-slate-800 dark:text-slate-300 font-medium">Relatórios e Extratos em PDF</span>
           </div>
         </div>
       </section>
@@ -216,7 +216,7 @@ export function LandingPage({ onEnter, theme, onToggleTheme }: LandingPageProps)
               key={step.number}
               className="p-6 rounded-2xl bg-white dark:bg-slate-900/40 border border-slate-200 dark:border-slate-800 hover:border-teal-500/50 dark:hover:border-teal-500/50 transition relative overflow-hidden group shadow-sm"
             >
-              <div className="text-3xl font-extrabold text-teal-600/30 dark:text-teal-400/30 group-hover:text-teal-600/50 dark:group-hover:text-teal-400/50 transition mb-4">
+              <div className="text-3xl font-extrabold text-teal-600/30 dark:text-teal-400/30 group-hover:text-teal-600/60 dark:group-hover:text-teal-400/50 transition mb-4">
                 {step.number}
               </div>
               <h3 className="text-lg font-semibold text-slate-900 dark:text-white mb-2">{step.title}</h3>
@@ -233,7 +233,7 @@ export function LandingPage({ onEnter, theme, onToggleTheme }: LandingPageProps)
           <p className="text-slate-600 dark:text-slate-400 mt-2 text-sm">Acesse agora sem necessidade de criar conta com senha ou dados pessoais.</p>
           <button
             onClick={onEnter}
-            className="mt-6 px-8 py-3 rounded-xl bg-teal-600 hover:bg-teal-500 text-white font-semibold transition shadow-lg shadow-teal-600/30 inline-flex items-center gap-2"
+            className="mt-6 px-8 py-3 rounded-xl bg-teal-600 hover:bg-teal-500 text-white font-semibold transition shadow-lg shadow-teal-600/20 inline-flex items-center gap-2"
           >
             Acessar o App Agora <ArrowRight size={16} />
           </button>
