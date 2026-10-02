@@ -166,6 +166,124 @@ export function LandingPage({ onEnter, theme, onToggleTheme }: LandingPageProps)
           </div>
         </div>
 
+        {/* SEÇÃO: COMO FUNCIONA (Passo a passo + Alerta de Privacidade) */}
+        <div id="como-funciona" className="mt-20 w-full text-left pt-10 border-t border-slate-200/80 dark:border-slate-800">
+          <div className="text-center mb-10">
+            <span className="text-teal-600 dark:text-teal-400 font-semibold text-xs uppercase tracking-wider">
+              Como Funciona
+            </span>
+            <h2 className="text-2xl sm:text-3xl font-bold text-slate-900 dark:text-white mt-1">
+              Do primeiro serviço ao backup, em poucos passos.
+            </h2>
+          </div>
+
+          {/* Caixas de Aviso de Privacidade */}
+          <div className="bg-slate-900 text-slate-100 p-6 sm:p-8 rounded-2xl mb-10 shadow-sm border border-slate-800">
+            <h3 className="font-bold text-lg text-emerald-400 mb-2">
+              Nenhum dado sai do seu navegador.
+            </h3>
+            <p className="text-slate-300 text-sm leading-relaxed">
+              Tudo o que você anota fica salvo apenas neste navegador, neste aparelho, criptografado pelo seu PIN[cite: 14]. Não existe conta, servidor nem nuvem[cite: 14]. Por isso, limpar os dados do site ou trocar de aparelho apaga tudo: faça backup[cite: 14].
+            </p>
+          </div>
+
+          {/* Passo a Passo de 1 a 6 */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div className="bg-white dark:bg-slate-900/50 p-6 rounded-2xl border border-slate-200/80 dark:border-slate-800 shadow-sm">
+              <div className="w-8 h-8 bg-slate-900 text-white dark:bg-slate-800 dark:text-teal-400 font-bold rounded-full flex items-center justify-center mb-4 text-sm">
+                1
+              </div>
+              <h4 className="font-bold text-slate-900 dark:text-white mb-1">Crie seu PIN</h4>
+              <p className="text-slate-600 dark:text-slate-400 text-xs leading-relaxed">
+                Na primeira vez, escolha um PIN de 4 a 6 dígitos[cite: 14]. Ele protege tudo e não pode ser recuperado: anote em um lugar seguro[cite: 14].
+              </p>
+            </div>
+
+            <div className="bg-white dark:bg-slate-900/50 p-6 rounded-2xl border border-slate-200/80 dark:border-slate-800 shadow-sm">
+              <div className="w-8 h-8 bg-slate-900 text-white dark:bg-slate-800 dark:text-teal-400 font-bold rounded-full flex items-center justify-center mb-4 text-sm">
+                2
+              </div>
+              <h4 className="font-bold text-slate-900 dark:text-white mb-1">Adicione empresa, serviço ou contrato</h4>
+              <p className="text-slate-600 dark:text-slate-400 text-xs leading-relaxed">
+                Toque em Adicionar, escolha o tipo (plantão, serviço, hora extra ou contrato) e informe a empresa ou o cliente, a data e o horário[cite: 14].
+              </p>
+            </div>
+
+            <div className="bg-white dark:bg-slate-900/50 p-6 rounded-2xl border border-slate-200/80 dark:border-slate-800 shadow-sm">
+              <div className="w-8 h-8 bg-slate-900 text-white dark:bg-slate-800 dark:text-teal-400 font-bold rounded-full flex items-center justify-center mb-4 text-sm">
+                3
+              </div>
+              <h4 className="font-bold text-slate-900 dark:text-white mb-1">Coloque os valores</h4>
+              <p className="text-slate-600 dark:text-slate-400 text-xs leading-relaxed">
+                Digite o valor combinado de cada serviço[cite: 14]. O app soma o total do mês e mostra quanto você já recebeu[cite: 14].
+              </p>
+            </div>
+
+            <div className="bg-white dark:bg-slate-900/50 p-6 rounded-2xl border border-slate-200/80 dark:border-slate-800 shadow-sm">
+              <div className="w-8 h-8 bg-slate-900 text-white dark:bg-slate-800 dark:text-teal-400 font-bold rounded-full flex items-center justify-center mb-4 text-sm">
+                4
+              </div>
+              <h4 className="font-bold text-slate-900 dark:text-white mb-1">Marque se foi pago</h4>
+              <p className="text-slate-600 dark:text-slate-400 text-xs leading-relaxed">
+                Abra o serviço e marque como pago, com a data do pagamento[cite: 14]. O que não for marcado continua como a receber[cite: 14].
+              </p>
+            </div>
+
+            <div className="bg-white dark:bg-slate-900/50 p-6 rounded-2xl border border-slate-200/80 dark:border-slate-800 shadow-sm">
+              <div className="w-8 h-8 bg-slate-900 text-white dark:bg-slate-800 dark:text-teal-400 font-bold rounded-full flex items-center justify-center mb-4 text-sm">
+                5
+              </div>
+              <h4 className="font-bold text-slate-900 dark:text-white mb-1">Faça seu backup</h4>
+              <p className="text-slate-600 dark:text-slate-400 text-xs leading-relaxed">
+                Em Configurações, escolha Exportar backup e guarde o arquivo no Drive ou no e-mail[cite: 14]. O app avisa quando passar de 30 dias sem backup[cite: 14].
+              </p>
+            </div>
+
+            <div className="bg-white dark:bg-slate-900/50 p-6 rounded-2xl border border-slate-200/80 dark:border-slate-800 shadow-sm">
+              <div className="w-8 h-8 bg-slate-900 text-white dark:bg-slate-800 dark:text-teal-400 font-bold rounded-full flex items-center justify-center mb-4 text-sm">
+                6
+              </div>
+              <h4 className="font-bold text-slate-900 dark:text-white mb-1">Importe quando precisar</h4>
+              <p className="text-slate-600 dark:text-slate-400 text-xs leading-relaxed">
+                No aparelho novo, crie o mesmo PIN do backup, abra Configurações, escolha Importar backup e selecione o arquivo .json[cite: 14].
+              </p>
+            </div>
+          </div>
+        </div>
+
+        {/* SEÇÃO: BACKUP .JSON OU PLANILHA .CSV */}
+        <div className="mt-16 w-full text-left">
+          <h3 className="text-xl font-bold text-slate-900 dark:text-white mb-6">
+            Backup .json ou planilha .csv?
+          </h3>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="bg-white dark:bg-slate-900/50 p-6 rounded-2xl border border-slate-200/80 dark:border-slate-800 shadow-sm">
+              <span className="text-xs font-semibold text-teal-600 dark:text-teal-400 uppercase tracking-wider block mb-1">
+                Para Guardar
+              </span>
+              <h4 className="font-bold text-slate-900 dark:text-white text-lg mb-2">
+                Backup (.json)
+              </h4>
+              <p className="text-slate-600 dark:text-slate-400 text-xs leading-relaxed">
+                Restaura seus dados dentro do app[cite: 14].
+              </p>
+            </div>
+
+            <div className="bg-white dark:bg-slate-900/50 p-6 rounded-2xl border border-slate-200/80 dark:border-slate-800 shadow-sm">
+              <span className="text-xs font-semibold text-teal-600 dark:text-teal-400 uppercase tracking-wider block mb-1">
+                Para Conferir
+              </span>
+              <h4 className="font-bold text-slate-900 dark:text-white text-lg mb-2">
+                Planilha (.csv)
+              </h4>
+              <p className="text-slate-600 dark:text-slate-400 text-xs leading-relaxed">
+                Mostra serviços, horas e valores em linhas e colunas[cite: 14].
+              </p>
+            </div>
+          </div>
+        </div>
+
       </main>
 
       {/* Footer */}
