@@ -18,7 +18,15 @@ export function getStoredTheme(): Theme {
 
 export function applyTheme(theme: Theme): void {
   const root = document.documentElement;
-  root.classList.toggle('light', theme === 'light');
+  
+  // O Tailwind espera a classe 'dark' para ativar o tema escuro.
+  // Se theme === 'dark', adiciona 'dark'. Se for 'light', remove 'dark'.
+  if (theme === 'dark') {
+    root.classList.add('dark');
+  } else {
+    root.classList.remove('dark');
+  }
+
   root.style.colorScheme = theme;
   document
     .querySelector('meta[name="theme-color"]')
@@ -39,10 +47,13 @@ export function useTheme() {
   const [theme, setThemeState] = useState<Theme>(getStoredTheme);
 
   useEffect(() => {
+    // Aplica o tema imediatamente na montagem do hook
+    applyTheme(theme);
+
     const onChange = () => setThemeState(getStoredTheme());
     window.addEventListener(EVENT_NAME, onChange);
     return () => window.removeEventListener(EVENT_NAME, onChange);
-  }, []);
+  }, [theme]);
 
   const toggle = useCallback(() => {
     setTheme(getStoredTheme() === 'dark' ? 'light' : 'dark');
