@@ -22,8 +22,8 @@ export function LandingPage({ onEnter, theme, onToggleTheme }: LandingPageProps)
       
       {/* Background Orbs */}
       <div className="pointer-events-none absolute inset-0 overflow-hidden z-0 dark:hidden">
-        <div className="absolute top-10 left-1/2 -translate-x-1/2 h-[500px] w-[800px] rounded-full bg-teal-200/30 blur-3xl" />
-        <div className="absolute top-1/3 right-10 h-72 w-72 rounded-full bg-emerald-200/30 blur-3xl" />
+        <div className="absolute top-10 left-1/2 -translate-x-1/2 h-[400px] w-[600px] rounded-full bg-teal-100/50 blur-3xl" />
+        <div className="absolute top-1/3 right-10 h-64 w-64 rounded-full bg-emerald-100/40 blur-3xl" />
       </div>
 
       <div className="pointer-events-none absolute inset-0 overflow-hidden z-0 hidden dark:block">
@@ -36,19 +36,19 @@ export function LandingPage({ onEnter, theme, onToggleTheme }: LandingPageProps)
           <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-teal-600 text-white shadow-md shadow-teal-600/20">
             <Stethoscope size={22} />
           </div>
-          <span className="font-extrabold text-xl tracking-tight text-slate-900 dark:text-white">
+          <span className="font-extrabold text-xl tracking-tight !text-slate-900 dark:!text-white">
             EscalaFácil
           </span>
-          <span className="hidden sm:inline-block rounded-full border border-teal-500/20 bg-teal-500/10 px-2.5 py-0.5 text-xs font-semibold text-teal-700 dark:text-teal-400">
+          <span className="hidden sm:inline-block rounded-full border border-teal-600/20 bg-teal-500/10 px-2.5 py-0.5 text-xs font-semibold !text-teal-800 dark:!text-teal-400">
             Médicos & Enfermagem
           </span>
         </div>
 
         <div className="flex items-center gap-4">
-          <nav className="hidden md:flex items-center gap-6 text-sm font-medium text-slate-600 dark:text-slate-300">
-            <a href="#recursos" className="hover:text-teal-600 dark:hover:text-white transition">Recursos</a>
-            <a href="#como-funciona" className="hover:text-teal-600 dark:hover:text-white transition">Como Funciona</a>
-            <a href="#privacidade" className="hover:text-teal-600 dark:hover:text-white transition">Privacidade</a>
+          <nav className="hidden md:flex items-center gap-6 text-sm font-medium !text-slate-700 dark:!text-slate-300">
+            <a href="#recursos" className="hover:!text-teal-600 dark:hover:!text-white transition">Recursos</a>
+            <a href="#como-funciona" className="hover:!text-teal-600 dark:hover:!text-white transition">Como Funciona</a>
+            <a href="#privacidade" className="hover:!text-teal-600 dark:hover:!text-white transition">Privacidade</a>
           </nav>
 
           {onToggleTheme && (
@@ -63,7 +63,7 @@ export function LandingPage({ onEnter, theme, onToggleTheme }: LandingPageProps)
 
           <button
             onClick={onEnter}
-            className="text-sm font-bold text-slate-700 hover:text-slate-900 dark:text-slate-300 dark:hover:text-white px-3 py-2 transition"
+            className="text-sm font-bold !text-slate-800 hover:!text-slate-950 dark:!text-slate-200 dark:hover:!text-white px-3 py-2 transition"
           >
             Entrar
           </button>
@@ -81,17 +81,17 @@ export function LandingPage({ onEnter, theme, onToggleTheme }: LandingPageProps)
       {/* Hero Section */}
       <main className="relative z-10 flex-1 flex flex-col items-center justify-center text-center px-6 pt-12 pb-20 max-w-5xl mx-auto">
         
-        <div className="inline-flex items-center gap-2 rounded-full border border-teal-500/20 bg-teal-500/10 px-3 py-1 text-xs font-semibold text-teal-700 dark:text-teal-400 mb-6">
-          <Lock size={12} />
+        <div className="inline-flex items-center gap-2 rounded-full border border-teal-600/20 bg-teal-500/10 px-3.5 py-1.5 text-xs font-bold !text-teal-800 dark:!text-teal-300 mb-6">
+          <Lock size={14} className="text-teal-600 dark:text-teal-400" />
           <span>Gestão inteligente de plantões hospitalares</span>
         </div>
 
-        <h1 className="text-4xl sm:text-5xl md:text-6xl font-extrabold tracking-tight text-slate-900 dark:text-white max-w-4xl mx-auto leading-tight">
+        <h1 className="text-4xl sm:text-5xl md:text-6xl font-black tracking-tight !text-slate-900 dark:!text-white max-w-4xl mx-auto leading-tight">
           Organize sua rotina médica sem complicações e com{' '}
-          <span className="text-teal-600 dark:text-teal-400">privacidade total</span>
+          <span className="!text-teal-600 dark:!text-teal-400">privacidade total</span>
         </h1>
 
-        <p className="mt-6 text-base sm:text-lg text-slate-600 dark:text-slate-300 max-w-2xl mx-auto leading-relaxed">
+        <p className="mt-6 text-base sm:text-lg font-medium !text-slate-700 dark:!text-slate-300 max-w-2xl mx-auto leading-relaxed">
           O EscalaFácil ajuda profissionais da saúde a controlar plantões, valores a receber e repetições de escala. Sem cadastros expostos, com dados armazenados diretamente no seu dispositivo.
         </p>
 
@@ -108,38 +108,38 @@ export function LandingPage({ onEnter, theme, onToggleTheme }: LandingPageProps)
         {/* Feature Cards Grid */}
         <div id="recursos" className="mt-20 grid grid-cols-1 md:grid-cols-3 gap-6 w-full text-left">
           
-          <div className="rounded-2xl border border-slate-200 dark:border-slate-800 bg-white/80 dark:bg-slate-900/80 p-6 backdrop-blur-sm shadow-sm transition hover:border-slate-300 dark:hover:border-slate-700">
+          <div className="rounded-2xl border border-slate-200 dark:border-slate-800 bg-white/90 dark:bg-slate-900/80 p-6 backdrop-blur-sm shadow-sm transition hover:border-slate-300 dark:hover:border-slate-700">
             <div className="mb-4 inline-flex rounded-xl bg-teal-500/10 p-3 text-teal-600 dark:text-teal-400">
               <Calendar size={24} />
             </div>
-            <h3 className="text-lg font-bold text-slate-900 dark:text-white mb-2">
+            <h3 className="text-lg font-bold !text-slate-900 dark:!text-white mb-2">
               Visualização Clara
             </h3>
-            <p className="text-sm text-slate-600 dark:text-slate-400 leading-relaxed">
+            <p className="text-sm font-medium !text-slate-600 dark:!text-slate-400 leading-relaxed">
               Calendário mensal com marcadores coloridos por hospital e relatórios de turnos organizados.
             </p>
           </div>
 
-          <div className="rounded-2xl border border-slate-200 dark:border-slate-800 bg-white/80 dark:bg-slate-900/80 p-6 backdrop-blur-sm shadow-sm transition hover:border-slate-300 dark:hover:border-slate-700">
+          <div className="rounded-2xl border border-slate-200 dark:border-slate-800 bg-white/90 dark:bg-slate-900/80 p-6 backdrop-blur-sm shadow-sm transition hover:border-slate-300 dark:hover:border-slate-700">
             <div className="mb-4 inline-flex rounded-xl bg-teal-500/10 p-3 text-teal-600 dark:text-teal-400">
               <DollarSign size={24} />
             </div>
-            <h3 className="text-lg font-bold text-slate-900 dark:text-white mb-2">
+            <h3 className="text-lg font-bold !text-slate-900 dark:!text-white mb-2">
               Cálculo Automático
             </h3>
-            <p className="text-sm text-slate-600 dark:text-slate-400 leading-relaxed">
+            <p className="text-sm font-medium !text-slate-600 dark:!text-slate-400 leading-relaxed">
               Acompanhe totais previstos e valores já pagos no mês sem precisar de planilhas complexas.
             </p>
           </div>
 
-          <div className="rounded-2xl border border-slate-200 dark:border-slate-800 bg-white/80 dark:bg-slate-900/80 p-6 backdrop-blur-sm shadow-sm transition hover:border-slate-300 dark:hover:border-slate-700">
+          <div className="rounded-2xl border border-slate-200 dark:border-slate-800 bg-white/90 dark:bg-slate-900/80 p-6 backdrop-blur-sm shadow-sm transition hover:border-slate-300 dark:hover:border-slate-700">
             <div className="mb-4 inline-flex rounded-xl bg-teal-500/10 p-3 text-teal-600 dark:text-teal-400">
               <ShieldCheck size={24} />
             </div>
-            <h3 className="text-lg font-bold text-slate-900 dark:text-white mb-2">
+            <h3 className="text-lg font-bold !text-slate-900 dark:!text-white mb-2">
               Segurança por PIN
             </h3>
-            <p className="text-sm text-slate-600 dark:text-slate-400 leading-relaxed">
+            <p className="text-sm font-medium !text-slate-600 dark:!text-slate-400 leading-relaxed">
               Bloqueio rápido e criptografia local com padrão AES-256 para total proteção dos seus dados.
             </p>
           </div>
