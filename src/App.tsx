@@ -229,7 +229,13 @@ function App() {
 
   // Se estiver na Landing Page
   if (showLanding) {
-    return <LandingPage onEnter={() => setShowLanding(false)} />;
+    return (
+      <LandingPage
+        onEnter={() => setShowLanding(false)}
+        theme={theme}
+        onToggleTheme={toggleTheme}
+      />
+    );
   }
 
   if (phase === 'setup' || phase === 'locked') {
@@ -241,6 +247,8 @@ function App() {
           lockedSeconds={lockedSeconds}
           onSetup={handleSetupPin}
           onUnlock={handleUnlock}
+          theme={theme}
+          onToggleTheme={toggleTheme}
         />
         <ToastContainer toasts={toasts} onDismiss={dismissToast} />
       </>
