@@ -210,12 +210,12 @@ function App() {
   // Render phases
   if (phase === 'loading') {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-slate-950">
+      <div className="flex min-h-screen items-center justify-center bg-slate-50 dark:bg-slate-950 transition-colors">
         <div className="flex flex-col items-center gap-4">
           <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-teal-600/20 border border-teal-600/30 animate-pulse">
-            <Stethoscope size={32} className="text-teal-400" />
+            <Stethoscope size={32} className="text-teal-600 dark:text-teal-400" />
           </div>
-          <p className="text-sm text-slate-500">Carregando...</p>
+          <p className="text-sm text-slate-600 dark:text-slate-500">Carregando...</p>
         </div>
       </div>
     );
@@ -241,37 +241,39 @@ function App() {
   const daysSinceBackup = getDaysSinceBackup();
 
   return (
-    <div className="min-h-screen bg-slate-950 pb-24">
+    <div className="min-h-screen bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100 transition-colors pb-24">
       {/* Header */}
-      <header className="sticky top-0 z-30 border-b border-slate-800 bg-slate-950/90 backdrop-blur-lg">
+      <header className="sticky top-0 z-30 border-b border-slate-200 dark:border-slate-800 bg-white/90 dark:bg-slate-950/90 backdrop-blur-lg transition-colors">
         <div className="mx-auto flex max-w-4xl items-center justify-between px-4 py-3">
           <div className="flex items-center gap-2.5">
             <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-teal-600/20 border border-teal-600/30">
-              <Stethoscope size={20} className="text-teal-400" />
+              <Stethoscope size={20} className="text-teal-600 dark:text-teal-400" />
             </div>
             <div>
-              <h1 className="text-base font-bold text-slate-100">EscalaFácil</h1>
-              <p className="text-[11px] text-slate-500">Gestão de Plantões</p>
+              <h1 className="text-base font-bold text-slate-900 dark:text-slate-100">EscalaFácil</h1>
+              <p className="text-[11px] text-slate-500 dark:text-slate-400">Gestão de Plantões</p>
             </div>
           </div>
           <div className="flex items-center gap-1">
             <button
               onClick={() => setReportOpen(true)}
-              className="rounded-lg p-2 text-slate-400 transition hover:bg-slate-800 hover:text-slate-100"
+              className="rounded-lg p-2 text-slate-600 dark:text-slate-400 transition hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-slate-900 dark:hover:text-slate-100"
               title="Extrato / Relatório"
+              aria-label="Abrir extrato e relatório"
             >
               <FileText size={20} />
             </button>
             <button
               onClick={() => setTemplateModalOpen(true)}
-              className="rounded-lg p-2 text-slate-400 transition hover:bg-slate-800 hover:text-slate-100"
+              className="rounded-lg p-2 text-slate-600 dark:text-slate-400 transition hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-slate-900 dark:hover:text-slate-100"
               title="Modelos"
+              aria-label="Gerenciar modelos de plantão"
             >
               <Layers size={20} />
             </button>
             <button
               onClick={toggleTheme}
-              className="rounded-lg p-2 text-slate-400 transition hover:bg-slate-800 hover:text-slate-100"
+              className="rounded-lg p-2 text-slate-600 dark:text-slate-400 transition hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-slate-900 dark:hover:text-slate-100"
               title={theme === 'dark' ? 'Tema claro' : 'Tema escuro'}
               aria-label={theme === 'dark' ? 'Ativar tema claro' : 'Ativar tema escuro'}
             >
@@ -279,15 +281,17 @@ function App() {
             </button>
             <button
               onClick={() => setSettingsOpen(true)}
-              className="rounded-lg p-2 text-slate-400 transition hover:bg-slate-800 hover:text-slate-100"
+              className="rounded-lg p-2 text-slate-600 dark:text-slate-400 transition hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-slate-900 dark:hover:text-slate-100"
               title="Configurações"
+              aria-label="Abrir configurações"
             >
               <SettingsIcon size={20} />
             </button>
             <button
               onClick={handleLock}
-              className="rounded-lg p-2 text-slate-400 transition hover:bg-slate-800 hover:text-slate-100"
+              className="rounded-lg p-2 text-slate-600 dark:text-slate-400 transition hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-slate-900 dark:hover:text-slate-100"
               title="Bloquear"
+              aria-label="Bloquear aplicativo"
             >
               <Lock size={20} />
             </button>
@@ -299,13 +303,13 @@ function App() {
       <main className="mx-auto max-w-4xl px-4 py-4">
         {/* Lembrete de backup */}
         {backupDue && (
-          <div className="mb-4 flex items-start gap-3 rounded-xl border border-amber-600/30 bg-amber-950/30 p-3">
-            <Download size={18} className="mt-0.5 shrink-0 text-amber-400" />
+          <div className="mb-4 flex items-start gap-3 rounded-xl border border-amber-500/30 dark:border-amber-600/30 bg-amber-50 dark:bg-amber-950/30 p-3 transition-colors">
+            <Download size={18} className="mt-0.5 shrink-0 text-amber-600 dark:text-amber-400" />
             <div className="min-w-0 flex-1">
-              <p className="text-sm font-medium text-amber-300">
+              <p className="text-sm font-medium text-amber-900 dark:text-amber-300">
                 Faça um backup dos seus plantões
               </p>
-              <p className="mt-0.5 text-xs text-slate-400">
+              <p className="mt-0.5 text-xs text-slate-600 dark:text-slate-400">
                 {daysSinceBackup === null
                   ? 'Você ainda não fez nenhum backup.'
                   : `Seu último backup foi há ${daysSinceBackup} dias.`}{' '}
@@ -328,17 +332,17 @@ function App() {
           <StatCard
             label="Plantões"
             value={String(stats.total)}
-            icon={<CalendarDays size={16} className="text-teal-400" />}
+            icon={<CalendarDays size={16} className="text-teal-600 dark:text-teal-400" />}
           />
           <StatCard
             label="Receita"
             value={formatCurrency(stats.totalValue)}
-            icon={<CalendarDays size={16} className="text-amber-400" />}
+            icon={<CalendarDays size={16} className="text-amber-600 dark:text-amber-400" />}
           />
           <StatCard
             label="Pago"
             value={`${stats.paid}/${stats.total}`}
-            icon={<CalendarDays size={16} className="text-emerald-400" />}
+            icon={<CalendarDays size={16} className="text-emerald-600 dark:text-emerald-400" />}
           />
         </div>
 
@@ -358,8 +362,8 @@ function App() {
         {/* Selected date shifts list */}
         {selectedDate && (
           <div className="mt-5">
-            <h3 className="mb-2 flex items-center gap-2 text-sm font-semibold text-slate-300">
-              <CalendarDays size={15} className="text-teal-400" />
+            <h3 className="mb-2 flex items-center gap-2 text-sm font-semibold text-slate-700 dark:text-slate-300">
+              <CalendarDays size={15} className="text-teal-600 dark:text-teal-400" />
               {formatDateBR(selectedDate)}
             </h3>
             <div className="space-y-2">
@@ -370,31 +374,31 @@ function App() {
                     <div key={shift.id} className="flex items-stretch gap-2">
                       <button
                         onClick={() => handleSelectShift(shift)}
-                        className="flex min-w-0 flex-1 items-center gap-3 rounded-xl border border-slate-700 bg-slate-800/50 p-3 text-left transition hover:border-slate-600 hover:bg-slate-800"
+                        className="flex min-w-0 flex-1 items-center gap-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800/50 p-3 text-left transition hover:border-slate-300 dark:hover:border-slate-600 hover:bg-slate-50 dark:hover:bg-slate-800"
                       >
                         <div
                           className="h-10 w-1.5 rounded-full"
                           style={{ backgroundColor: shift.color }}
                         />
                         <div className="flex-1 min-w-0">
-                          <p className="truncate font-medium text-slate-200">
+                          <p className="truncate font-medium text-slate-800 dark:text-slate-200">
                             {shift.location}
                           </p>
-                          <p className="text-xs text-slate-400">
+                          <p className="text-xs text-slate-500 dark:text-slate-400">
                             {shift.startTime} às {shift.endTime}
                             {shift.value > 0 &&
                               ` · ${formatCurrency(shift.value)}`}
                           </p>
                         </div>
                         {shift.paid && (
-                          <span className="rounded-full bg-emerald-600/20 px-2.5 py-0.5 text-xs font-medium text-emerald-400">
+                          <span className="rounded-full bg-emerald-100 dark:bg-emerald-600/20 px-2.5 py-0.5 text-xs font-medium text-emerald-700 dark:text-emerald-400">
                             Pago
                           </span>
                         )}
                       </button>
                       <button
                         onClick={() => setRepeatShift(shift)}
-                        className="flex w-11 shrink-0 items-center justify-center rounded-xl border border-slate-700 bg-slate-800/50 text-slate-400 transition hover:border-teal-600 hover:text-teal-400"
+                        className="flex w-11 shrink-0 items-center justify-center rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800/50 text-slate-500 dark:text-slate-400 transition hover:border-teal-600 hover:text-teal-600 dark:hover:text-teal-400"
                         title="Repetir plantão"
                         aria-label="Repetir plantão"
                       >
@@ -404,7 +408,7 @@ function App() {
                   );
                 })}
               {data.shifts.filter((s) => s.date === selectedDate).length === 0 && (
-                <p className="rounded-xl border border-dashed border-slate-700 py-6 text-center text-sm text-slate-500">
+                <p className="rounded-xl border border-dashed border-slate-300 dark:border-slate-700 py-6 text-center text-sm text-slate-500 dark:text-slate-400">
                   Nenhum plantão neste dia. Toque em "Adicionar" abaixo.
                 </p>
               )}
@@ -416,11 +420,11 @@ function App() {
       </main>
 
       {/* Bottom action bar */}
-      <div className="fixed bottom-0 left-0 right-0 z-30 border-t border-slate-800 bg-slate-950/95 backdrop-blur-lg">
+      <div className="fixed bottom-0 left-0 right-0 z-30 border-t border-slate-200 dark:border-slate-800 bg-white/95 dark:bg-slate-950/95 backdrop-blur-lg transition-colors">
         <div className="mx-auto flex max-w-4xl items-center justify-between gap-3 px-4 py-3">
           <div className="flex-1">
             {selectedDate && (
-              <p className="text-xs text-slate-400">
+              <p className="text-xs text-slate-500 dark:text-slate-400">
                 {formatDateBR(selectedDate)}
               </p>
             )}
@@ -500,12 +504,12 @@ function StatCard({
   icon: React.ReactNode;
 }) {
   return (
-    <div className="rounded-xl border border-slate-800 bg-slate-900/60 p-3">
+    <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900/60 p-3 transition-colors">
       <div className="mb-1 flex items-center gap-1.5">
         {icon}
-        <span className="text-xs text-slate-400">{label}</span>
+        <span className="text-xs text-slate-500 dark:text-slate-400">{label}</span>
       </div>
-      <p className="truncate text-lg font-bold text-slate-100">{value}</p>
+      <p className="truncate text-lg font-bold text-slate-900 dark:text-slate-100">{value}</p>
     </div>
   );
 }
