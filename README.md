@@ -1,4 +1,4 @@
-# EscalaFácil — Gestão de Turnos Médicos
+# EscalaFácil — Gestão de serviços, contratos, frelas
 
 Aplicativo web para organizar plantões e turnos médicos: calendário mensal, cadastro de turnos, modelos reutilizáveis, plantões recorrentes, relatórios financeiros e backup criptografado. Os dados ficam **somente no seu aparelho**, protegidos por PIN.
 
