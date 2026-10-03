@@ -23,7 +23,7 @@ export function TemplateModal({
     <Modal
       open={open}
       onClose={onClose}
-      title="Modelos de Plantão"
+      title="Modelos"
       maxWidth="max-w-lg"
       footer={
         <>
@@ -36,13 +36,13 @@ export function TemplateModal({
     >
       {templates.length === 0 ? (
         <div className="flex flex-col items-center gap-3 py-12 text-center">
-          <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-slate-800 border border-slate-700">
+          <div className="flex h-16 w-16 items-center justify-center rounded-2xl border border-slate-200 bg-slate-100 dark:border-slate-700 dark:bg-slate-800">
             <Layers size={28} className="text-slate-500" />
           </div>
           <div>
-            <p className="font-medium text-slate-300">Nenhum modelo salvo</p>
-            <p className="mt-1 text-sm text-slate-500">
-              Crie modelos para preencher plantões com 1 clique.
+            <p className="font-medium text-slate-800 dark:text-slate-300">Nenhum modelo salvo</p>
+            <p className="mt-1 text-sm text-slate-600 dark:text-slate-500">
+              Crie modelos para preencher serviços com 1 clique.
             </p>
           </div>
           <Button variant="secondary" onClick={onAddNew}>
@@ -51,34 +51,33 @@ export function TemplateModal({
         </div>
       ) : (
         <div className="space-y-2">
-          {templates.map((tpl) => {
-            return (
+          {templates.map((tpl) => (
+            <div
+              key={tpl.id}
+              className="flex items-center gap-3 rounded-xl border border-slate-200 bg-slate-50 p-3 transition hover:border-slate-300 dark:border-slate-700 dark:bg-slate-800/50 dark:hover:border-slate-600"
+            >
               <div
-                key={tpl.id}
-                className="flex items-center gap-3 rounded-xl border border-slate-700 bg-slate-800/50 p-3 transition hover:border-slate-600"
-              >
-                <div
-                  className="h-10 w-1.5 rounded-full"
-                  style={{ backgroundColor: tpl.color }}
-                />
-                <div className="flex-1 min-w-0">
-                  <p className="truncate font-medium text-slate-200">{tpl.name}</p>
-                  <p className="truncate text-xs text-slate-400">
-                    {tpl.location} · {formatTimeRange(tpl.startTime, tpl.endTime)}
-                    {tpl.value > 0 && ` · ${formatCurrency(tpl.value)}`}
-                  </p>
-                </div>
-                <button
-                  onClick={() => {
-                    if (confirm('Excluir este modelo?')) onDelete(tpl.id);
-                  }}
-                  className="rounded-lg p-2 text-slate-500 transition hover:bg-red-950/50 hover:text-red-400"
-                >
-                  <Trash2 size={16} />
-                </button>
+                className="h-10 w-1.5 rounded-full"
+                style={{ backgroundColor: tpl.color }}
+              />
+              <div className="min-w-0 flex-1">
+                <p className="truncate font-medium text-slate-900 dark:text-slate-200">{tpl.name}</p>
+                <p className="truncate text-xs text-slate-600 dark:text-slate-400">
+                  {tpl.location} · {formatTimeRange(tpl.startTime, tpl.endTime)}
+                  {tpl.value > 0 && ` · ${formatCurrency(tpl.value)}`}
+                </p>
               </div>
-            );
-          })}
+              <button
+                onClick={() => {
+                  if (confirm('Excluir este modelo?')) onDelete(tpl.id);
+                }}
+                aria-label={`Excluir modelo ${tpl.name}`}
+                className="rounded-lg p-2 text-slate-500 transition hover:bg-red-50 hover:text-red-600 dark:hover:bg-red-950/50 dark:hover:text-red-400"
+              >
+                <Trash2 size={16} />
+              </button>
+            </div>
+          ))}
         </div>
       )}
     </Modal>
