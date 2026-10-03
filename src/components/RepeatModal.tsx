@@ -49,12 +49,13 @@ export function RepeatModal({ open, onClose, shift, existing, onConfirm }: Repea
     let skipped = 0;
     if (!shift || count === 0) return { toCreate, skipped };
 
-    // Copia o plantão, mas não o id, as datas de controle nem o pagamento
+    // Copia o serviço, mas não o id, as datas de controle, o pagamento nem o fim do contrato
     const {
       id: _id,
       createdAt: _created,
       updatedAt: _updated,
       paymentDate: _payment,
+      endDate: _end,
       ...base
     } = shift;
 
@@ -75,12 +76,14 @@ export function RepeatModal({ open, onClose, shift, existing, onConfirm }: Repea
   if (!shift) return null;
 
   const lastDate = plan.toCreate.length > 0 ? plan.toCreate[plan.toCreate.length - 1].date : null;
+  const timeLabel =
+    shift.hasTime === false ? 'Sem horário definido' : `${shift.startTime} às ${shift.endTime}`;
 
   return (
     <Modal
       open={open}
       onClose={onClose}
-      title="Repetir plantão"
+      title="Repetir serviço"
       maxWidth="max-w-md"
       footer={
         <>
@@ -101,17 +104,17 @@ export function RepeatModal({ open, onClose, shift, existing, onConfirm }: Repea
       }
     >
       <div className="space-y-4">
-        <div className="rounded-xl border border-slate-700 bg-slate-800/50 p-3">
-          <p className="truncate font-medium text-slate-200">{shift.location}</p>
-          <p className="text-xs text-slate-400">
-            {formatDateBR(shift.date)} · {shift.startTime} às {shift.endTime}
+        <div className="rounded-xl border border-slate-200 bg-slate-50 p-3 dark:border-slate-700 dark:bg-slate-800/50">
+          <p className="truncate font-medium text-slate-900 dark:text-slate-200">{shift.location}</p>
+          <p className="text-xs text-slate-600 dark:text-slate-400">
+            {formatDateBR(shift.date)} · {timeLabel}
           </p>
         </div>
 
         <div>
           <label
             htmlFor="repeat-interval"
-            className="mb-1.5 block text-sm font-medium text-slate-300"
+            className="mb-1.5 block text-sm font-medium text-slate-700 dark:text-slate-300"
           >
             Repetir
           </label>
@@ -119,7 +122,7 @@ export function RepeatModal({ open, onClose, shift, existing, onConfirm }: Repea
             id="repeat-interval"
             value={interval}
             onChange={(e) => setIntervalDays(Number(e.target.value))}
-            className="w-full rounded-xl border border-slate-700 bg-slate-800 px-3 py-2.5 text-sm text-slate-100 focus:border-teal-500 focus:outline-none"
+            className="w-full rounded-xl border border-slate-300 bg-white px-3 py-2.5 text-sm text-slate-900 focus:border-teal-600 focus:outline-none dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100 dark:focus:border-teal-500"
           >
             {INTERVALS.map((item) => (
               <option key={item.days} value={item.days}>
@@ -138,15 +141,13 @@ export function RepeatModal({ open, onClose, shift, existing, onConfirm }: Repea
           onChange={(e) => setCountText(e.target.value.replace(/\D/g, '').slice(0, 2))}
         />
 
-        <p className="text-sm text-slate-400">
+        <p className="text-sm text-slate-600 dark:text-slate-400">
           {lastDate
-            ? `Serão criados ${plan.toCreate.length} plantões, até ${formatDateBR(lastDate)}.`
-            : 'Nenhum plantão novo para criar.'}
+            ? `Serão criados ${plan.toCreate.length} serviços, até ${formatDateBR(lastDate)}.`
+            : 'Nenhum serviço novo para criar.'}
           {plan.skipped > 0 && ` ${plan.skipped} já existem e serão ignorados.`}
         </p>
-        <p className="text-xs text-slate-500">
-          Os plantões copiados começam como "não pagos".
-        </p>
+        <p className="text-xs text-slate-500">Os serviços copiados começam como "não pagos".</p>
       </div>
     </Modal>
   );
