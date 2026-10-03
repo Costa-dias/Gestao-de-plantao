@@ -6,35 +6,37 @@ interface ToastContainerProps {
   onDismiss: (id: string) => void;
 }
 
+const toneClasses = {
+  success:
+    'border-teal-600/40 bg-teal-50 text-teal-900 dark:border-teal-600/50 dark:bg-teal-950 dark:text-teal-100',
+  error:
+    'border-red-600/40 bg-red-50 text-red-900 dark:border-red-600/50 dark:bg-red-950 dark:text-red-100',
+  info: 'border-slate-300 bg-white text-slate-800 dark:border-slate-600 dark:bg-slate-900 dark:text-slate-100',
+};
+
 export function ToastContainer({ toasts, onDismiss }: ToastContainerProps) {
   return (
-    <div className="fixed bottom-20 right-4 z-[60] flex flex-col gap-2 sm:bottom-4">
+    <div className="fixed bottom-20 right-4 z-[60] flex max-w-[calc(100vw-2rem)] flex-col gap-2 sm:bottom-4">
       {toasts.map((toast) => (
         <div
           key={toast.id}
-          className={`flex items-center gap-3 rounded-xl border px-4 py-3 shadow-2xl animate-slide-in-right ${
-            toast.type === 'success'
-              ? 'border-teal-600/50 bg-teal-950/90 text-teal-100'
-              : toast.type === 'error'
-              ? 'border-red-600/50 bg-red-950/90 text-red-100'
-              : 'border-slate-600/50 bg-slate-850/90 text-slate-100'
-          }`}
-          style={{
-            backgroundColor:
-              toast.type === 'success'
-                ? 'rgba(2, 33, 32, 0.95)'
-                : toast.type === 'error'
-                ? 'rgba(50, 7, 7, 0.95)'
-                : 'rgba(15, 23, 42, 0.95)',
-          }}
+          role="status"
+          className={`flex items-center gap-3 rounded-xl border px-4 py-3 shadow-2xl animate-slide-in-right ${toneClasses[toast.type]}`}
         >
-          {toast.type === 'success' && <CheckCircle2 size={18} className="text-teal-400" />}
-          {toast.type === 'error' && <XCircle size={18} className="text-red-400" />}
-          {toast.type === 'info' && <Info size={18} className="text-slate-400" />}
+          {toast.type === 'success' && (
+            <CheckCircle2 size={18} className="shrink-0 text-teal-700 dark:text-teal-400" />
+          )}
+          {toast.type === 'error' && (
+            <XCircle size={18} className="shrink-0 text-red-700 dark:text-red-400" />
+          )}
+          {toast.type === 'info' && (
+            <Info size={18} className="shrink-0 text-slate-500 dark:text-slate-400" />
+          )}
           <span className="text-sm">{toast.message}</span>
           <button
             onClick={() => onDismiss(toast.id)}
-            className="ml-2 text-slate-400 hover:text-slate-200"
+            className="ml-2 shrink-0 text-slate-500 hover:text-slate-900 dark:text-slate-400 dark:hover:text-slate-200"
+            aria-label="Dispensar aviso"
           >
             <X size={14} />
           </button>
