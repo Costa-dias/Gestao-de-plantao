@@ -33,24 +33,23 @@ export function MonthView({
       <div className="mb-4 flex items-center justify-between">
         <button
           onClick={onPrevMonth}
-          className="rounded-lg p-2 text-slate-400 transition hover:bg-slate-800 hover:text-slate-100"
+          aria-label="Mês anterior"
+          className="rounded-lg p-2 text-slate-500 transition hover:bg-slate-100 hover:text-slate-900 dark:text-slate-400 dark:hover:bg-slate-800 dark:hover:text-slate-100"
         >
           <ChevronLeft size={22} />
         </button>
 
-        <button
-          onClick={onToday}
-          className="flex flex-col items-center"
-        >
+        <button onClick={onToday} className="flex flex-col items-center">
           <MonthLabel year={year} month={month} />
-          <span className="text-xs text-teal-400 hover:text-teal-300">
+          <span className="text-xs font-medium text-teal-700 hover:text-teal-800 dark:text-teal-400 dark:hover:text-teal-300">
             Ir para hoje
           </span>
         </button>
 
         <button
           onClick={onNextMonth}
-          className="rounded-lg p-2 text-slate-400 transition hover:bg-slate-800 hover:text-slate-100"
+          aria-label="Próximo mês"
+          className="rounded-lg p-2 text-slate-500 transition hover:bg-slate-100 hover:text-slate-900 dark:text-slate-400 dark:hover:bg-slate-800 dark:hover:text-slate-100"
         >
           <ChevronRight size={22} />
         </button>
