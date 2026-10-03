@@ -1,4 +1,4 @@
-import { useState, useCallback, useEffect, useRef, useMemo } from 'react';
+import { useState, useCallback, useEffect, useRef } from 'react';
 import {
   Lock,
   Download,
@@ -18,10 +18,17 @@ import { checkNewPin, sanitizeString } from '@/lib/validation';
 import { changePin, clearAllData } from '@/lib/storage';
 import { exportBackup, importBackup, downloadBackup } from '@/lib/backup';
 import { useTheme } from '@/lib/theme';
-import { buildShiftsCsv } from '@/lib/exportCsv';
 import { markBackupDone } from '@/lib/backupReminder';
+import { buildShiftsCsv } from '@/lib/exportCsv';
 
 const MAX_BACKUP_BYTES = 5 * 1024 * 1024; // 5 MB
+
+const itemButton =
+  'flex w-full items-center gap-3 rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-left transition hover:border-slate-300 hover:bg-slate-100 dark:border-slate-700 dark:bg-slate-800/50 dark:hover:border-slate-600 dark:hover:bg-slate-800';
+const sectionTitle =
+  'mb-2 flex items-center gap-2 text-sm font-semibold text-slate-700 dark:text-slate-300';
+const statCard =
+  'rounded-xl border border-slate-200 bg-slate-50 p-3 text-center dark:border-slate-700 dark:bg-slate-800/50';
 
 interface SettingsModalProps {
   open: boolean;
@@ -138,13 +145,13 @@ export function SettingsModal({
 
   const handleExportCsv = useCallback(() => {
     if (data.shifts.length === 0) {
-      showToast('Não há plantões para exportar.', 'error');
+      showToast('Não há serviços para exportar.', 'error');
       return;
     }
     try {
       const blob = buildShiftsCsv(data.shifts);
       const date = new Date().toISOString().slice(0, 10);
-      downloadBackup(blob, `escalafacil-plantoes-${date}.csv`);
+      downloadBackup(blob, `escalafacil-servicos-${date}.csv`);
       showToast('Planilha exportada. O arquivo não é criptografado: guarde com cuidado.', 'success');
     } catch {
       showToast('Erro ao exportar a planilha.', 'error');
@@ -179,13 +186,19 @@ export function SettingsModal({
   const totalShifts = data.shifts.length;
   const paidShifts = data.shifts.filter((s) => s.paid).length;
 
-  const monthRevenue = useMemo(() => {
-    const now = new Date();
-    const currentMonth = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
-    return data.shifts
-      .filter((s) => s.date.startsWith(currentMonth))
-      .reduce((sum, s) => sum + s.value, 0);
-  }, [data.shifts]);
+  // Compara "AAAA-MM" direto no texto da data (evita erro de fuso horário)
+  const now = new Date();
+  const currentMonth = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
+  const monthRevenue = data.shifts
+    .filter((s) => s.date.startsWith(currentMonth))
+    .reduce((sum, s) => sum + s.value, 0);
+
+  const themeButton = (active: boolean) =>
+    `flex items-center justify-center gap-2 rounded-xl border px-4 py-3 text-sm font-medium transition ${
+      active
+        ? 'border-teal-600 bg-teal-50 text-teal-800 dark:border-teal-500 dark:bg-teal-600/20 dark:text-teal-400'
+        : 'border-slate-200 bg-slate-50 text-slate-700 hover:border-slate-300 dark:border-slate-700 dark:bg-slate-800/50 dark:text-slate-300 dark:hover:border-slate-600'
+    }`;
 
   return (
     <Modal
@@ -231,26 +244,26 @@ export function SettingsModal({
         <div className="space-y-5">
           {/* Stats */}
           <div className="grid grid-cols-3 gap-3">
-            <div className="rounded-xl border border-slate-700 bg-slate-800/50 p-3 text-center">
-              <p className="text-2xl font-bold text-teal-400">{totalShifts}</p>
-              <p className="text-xs text-slate-400">Plantões</p>
+            <div className={statCard}>
+              <p className="text-2xl font-bold text-teal-700 dark:text-teal-400">{totalShifts}</p>
+              <p className="text-xs text-slate-600 dark:text-slate-400">Serviços</p>
             </div>
-            <div className="rounded-xl border border-slate-700 bg-slate-800/50 p-3 text-center">
-              <p className="text-2xl font-bold text-emerald-400">{paidShifts}</p>
-              <p className="text-xs text-slate-400">Pagos</p>
+            <div className={statCard}>
+              <p className="text-2xl font-bold text-emerald-700 dark:text-emerald-400">{paidShifts}</p>
+              <p className="text-xs text-slate-600 dark:text-slate-400">Pagos</p>
             </div>
-            <div className="rounded-xl border border-slate-700 bg-slate-800/50 p-3 text-center">
-              <p className="text-lg font-bold text-amber-400">
+            <div className={statCard}>
+              <p className="text-lg font-bold text-amber-700 dark:text-amber-400">
                 {new Intl.NumberFormat('pt-BR', { notation: 'compact' }).format(monthRevenue)}
               </p>
-              <p className="text-xs text-slate-400">Mês atual</p>
+              <p className="text-xs text-slate-600 dark:text-slate-400">Mês atual</p>
             </div>
           </div>
 
           {/* Aparência */}
           <div>
-            <h3 className="mb-2 flex items-center gap-2 text-sm font-semibold text-slate-300">
-              <Sun size={15} className="text-teal-400" />
+            <h3 className={sectionTitle}>
+              <Sun size={15} className="text-teal-700 dark:text-teal-400" />
               Aparência
             </h3>
             <div className="grid grid-cols-2 gap-2">
@@ -258,11 +271,7 @@ export function SettingsModal({
                 type="button"
                 onClick={() => setTheme('light')}
                 aria-pressed={theme === 'light'}
-                className={`flex items-center justify-center gap-2 rounded-xl border px-4 py-3 text-sm transition ${
-                  theme === 'light'
-                    ? 'border-teal-500 bg-teal-600/20 text-teal-400'
-                    : 'border-slate-700 bg-slate-800/50 text-slate-300 hover:border-slate-600'
-                }`}
+                className={themeButton(theme === 'light')}
               >
                 <Sun size={16} /> Claro
               </button>
@@ -270,11 +279,7 @@ export function SettingsModal({
                 type="button"
                 onClick={() => setTheme('dark')}
                 aria-pressed={theme === 'dark'}
-                className={`flex items-center justify-center gap-2 rounded-xl border px-4 py-3 text-sm transition ${
-                  theme === 'dark'
-                    ? 'border-teal-500 bg-teal-600/20 text-teal-400'
-                    : 'border-slate-700 bg-slate-800/50 text-slate-300 hover:border-slate-600'
-                }`}
+                className={themeButton(theme === 'dark')}
               >
                 <Moon size={16} /> Escuro
               </button>
@@ -283,25 +288,23 @@ export function SettingsModal({
 
           {/* PIN */}
           <div>
-            <h3 className="mb-2 flex items-center gap-2 text-sm font-semibold text-slate-300">
-              <Lock size={15} className="text-teal-400" />
+            <h3 className={sectionTitle}>
+              <Lock size={15} className="text-teal-700 dark:text-teal-400" />
               Segurança
             </h3>
             <div className="space-y-1.5">
               <button
-                type="button"
                 onClick={() => setSection('changePin')}
-                className="flex w-full items-center justify-between rounded-xl border border-slate-700 bg-slate-800/50 px-4 py-3 text-left transition hover:border-slate-600 hover:bg-slate-800"
+                className={`${itemButton} justify-between`}
               >
-                <span className="text-sm text-slate-200">Alterar PIN</span>
+                <span className="text-sm text-slate-800 dark:text-slate-200">Alterar PIN</span>
                 <span className="text-slate-500">→</span>
               </button>
               <button
-                type="button"
                 onClick={() => setSection('resetPin')}
-                className="flex w-full items-center justify-between rounded-xl border border-red-900/50 bg-red-950/20 px-4 py-3 text-left transition hover:border-red-800 hover:bg-red-950/40"
+                className="flex w-full items-center justify-between rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-left transition hover:border-red-300 hover:bg-red-100 dark:border-red-900/50 dark:bg-red-950/20 dark:hover:border-red-800 dark:hover:bg-red-950/40"
               >
-                <span className="flex items-center gap-2 text-sm text-red-300">
+                <span className="flex items-center gap-2 text-sm text-red-700 dark:text-red-300">
                   <AlertTriangle size={14} />
                   Redefinir PIN e apagar dados
                 </span>
@@ -312,47 +315,36 @@ export function SettingsModal({
 
           {/* Backup */}
           <div>
-            <h3 className="mb-2 flex items-center gap-2 text-sm font-semibold text-slate-300">
-              <Shield size={15} className="text-teal-400" />
+            <h3 className={sectionTitle}>
+              <Shield size={15} className="text-teal-700 dark:text-teal-400" />
               Backup & Transferência
             </h3>
             <div className="space-y-1.5">
-              <button
-                type="button"
-                onClick={handleExport}
-                className="flex w-full items-center gap-3 rounded-xl border border-slate-700 bg-slate-800/50 px-4 py-3 text-left transition hover:border-slate-600 hover:bg-slate-800"
-              >
-                <Download size={18} className="text-teal-400" />
+              <button onClick={handleExport} className={itemButton}>
+                <Download size={18} className="text-teal-700 dark:text-teal-400" />
                 <div>
-                  <p className="text-sm text-slate-200">Exportar backup</p>
-                  <p className="text-xs text-slate-500">Arquivo .json criptografado</p>
+                  <p className="text-sm text-slate-800 dark:text-slate-200">Exportar backup</p>
+                  <p className="text-xs text-slate-600 dark:text-slate-400">Arquivo .json criptografado</p>
                 </div>
               </button>
-
-              <button
-                type="button"
-                onClick={handleExportCsv}
-                className="flex w-full items-center gap-3 rounded-xl border border-slate-700 bg-slate-800/50 px-4 py-3 text-left transition hover:border-slate-600 hover:bg-slate-800"
-              >
-                <Download size={18} className="text-teal-400" />
+              <button onClick={handleExportCsv} className={itemButton}>
+                <Download size={18} className="text-teal-700 dark:text-teal-400" />
                 <div>
-                  <p className="text-sm text-slate-200">Exportar planilha (CSV)</p>
-                  <p className="text-xs text-slate-500">Legível no celular e no PC, sem criptografia</p>
+                  <p className="text-sm text-slate-800 dark:text-slate-200">Exportar planilha (CSV)</p>
+                  <p className="text-xs text-slate-600 dark:text-slate-400">
+                    Legível no celular e no PC, sem criptografia
+                  </p>
                 </div>
               </button>
-
-              <button
-                type="button"
-                onClick={() => fileInputRef.current?.click()}
-                className="flex w-full items-center gap-3 rounded-xl border border-slate-700 bg-slate-800/50 px-4 py-3 text-left transition hover:border-slate-600 hover:bg-slate-800"
-              >
-                <Upload size={18} className="text-teal-400" />
+              <button onClick={() => fileInputRef.current?.click()} className={itemButton}>
+                <Upload size={18} className="text-teal-700 dark:text-teal-400" />
                 <div>
-                  <p className="text-sm text-slate-200">Importar backup</p>
-                  <p className="text-xs text-slate-500">Restaurar de arquivo .json (até 5 MB)</p>
+                  <p className="text-sm text-slate-800 dark:text-slate-200">Importar backup</p>
+                  <p className="text-xs text-slate-600 dark:text-slate-400">
+                    Restaurar de arquivo .json (até 5 MB)
+                  </p>
                 </div>
               </button>
-
               <input
                 ref={fileInputRef}
                 type="file"
@@ -364,11 +356,11 @@ export function SettingsModal({
           </div>
 
           {/* About */}
-          <div className="rounded-xl border border-slate-700 bg-slate-800/30 p-4">
+          <div className="rounded-xl border border-slate-200 bg-slate-50 p-4 dark:border-slate-700 dark:bg-slate-800/30">
             <div className="flex items-start gap-2">
               <Info size={16} className="mt-0.5 shrink-0 text-slate-500" />
-              <div className="text-xs text-slate-500">
-                <p className="font-medium text-slate-400">EscalaFácil</p>
+              <div className="text-xs text-slate-600 dark:text-slate-400">
+                <p className="font-medium text-slate-800 dark:text-slate-300">EscalaFácil</p>
                 <p className="mt-1">
                   Seus dados são armazenados localmente e criptografados com AES-256
                   usando seu PIN como chave. Nenhum dado é enviado para servidores
@@ -407,34 +399,40 @@ export function SettingsModal({
             value={confirmNewPin}
             onChange={(e) => setConfirmNewPin(e.target.value.replace(/\D/g, '').slice(0, 6))}
           />
-          {pinError && (
-            <p className="text-sm text-red-400">{pinError}</p>
-          )}
+          {pinError && <p className="text-sm text-red-600 dark:text-red-400">{pinError}</p>}
         </div>
       )}
 
       {section === 'resetPin' && (
         <div className="space-y-4">
-          <div className="flex items-start gap-3 rounded-xl border border-red-900/50 bg-red-950/30 p-4">
-            <AlertTriangle size={20} className="mt-0.5 shrink-0 text-red-400" />
-            <div className="text-sm text-red-300">
+          <div className="flex items-start gap-3 rounded-xl border border-red-200 bg-red-50 p-4 dark:border-red-900/50 dark:bg-red-950/30">
+            <AlertTriangle size={20} className="mt-0.5 shrink-0 text-red-600 dark:text-red-400" />
+            <div className="text-sm text-red-800 dark:text-red-300">
               <p className="font-semibold">Atenção — ação irreversível</p>
               <p className="mt-1">
-                Redefinir o PIN apagará permanentemente todos os seus plantões,
+                Redefinir o PIN apagará permanentemente todos os seus serviços,
                 modelos e configurações. Certifique-se de exportar um backup antes
                 de continuar.
               </p>
             </div>
           </div>
-          <p className="text-sm text-slate-400">
-            Confirme digitando <strong className="text-slate-300">APAGAR</strong> abaixo:
+          <p className="text-sm text-slate-600 dark:text-slate-400">
+            Confirme digitando <strong className="text-slate-900 dark:text-slate-300">APAGAR</strong> abaixo:
           </p>
           <Input
             placeholder="APAGAR"
             value={resetConfirmPin}
             onChange={(e) => setResetConfirmPin(sanitizeString(e.target.value, 10))}
           />
-          {resetError && <p className="text-sm text-red-400">{resetError}</p>}
+          <Button
+            variant="danger"
+            onClick={handleResetPin}
+            disabled={busy || resetConfirmPin !== 'APAGAR'}
+            className="w-full"
+          >
+            <AlertTriangle size={16} /> Redefinir PIN e apagar todos os dados
+          </Button>
+          {resetError && <p className="text-sm text-red-600 dark:text-red-400">{resetError}</p>}
         </div>
       )}
     </Modal>
