@@ -13,9 +13,10 @@ export function ColorPicker({ value, onChange }: ColorPickerProps) {
           key={color}
           type="button"
           onClick={() => onChange(color)}
+          aria-pressed={value === color}
           className={`h-8 w-8 rounded-full transition-all duration-200 ${
             value === color
-              ? 'ring-2 ring-white ring-offset-2 ring-offset-slate-900 scale-110'
+              ? 'scale-110 ring-2 ring-slate-900 ring-offset-2 ring-offset-white dark:ring-white dark:ring-offset-slate-900'
               : 'hover:scale-110'
           }`}
           style={{ backgroundColor: color }}
