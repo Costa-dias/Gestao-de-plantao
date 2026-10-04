@@ -119,10 +119,10 @@ export function LandingPage({ onEnter, theme, onToggleTheme }: LandingPageProps)
         {/* Hero */}
         <section className="mx-auto flex max-w-5xl flex-col items-center px-6 pb-20 pt-12 text-center sm:pt-16">
           <h1 className="max-w-3xl text-4xl font-extrabold leading-[1.1] tracking-tight sm:text-5xl md:text-6xl">
-            Sua plataforma digital para marcações de serviços em geral.
+            Organize seus plantões, serviços e horas extras em um só lugar.
           </h1>
           <p className="mt-5 text-lg font-medium text-slate-700 dark:text-slate-300 sm:text-xl">
-            Não se perca mais no seu calendário.
+            Calendário, pagamentos, valores, contratos e relatórios — com seus dados protegidos no próprio dispositivo.
           </p>
 
           <div className="mt-8 flex flex-wrap items-center justify-center gap-4">
