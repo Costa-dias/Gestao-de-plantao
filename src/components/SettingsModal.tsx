@@ -135,7 +135,7 @@ export function SettingsModal({
     try {
       const blob = await exportBackup(data, pin);
       const date = new Date().toISOString().slice(0, 10);
-      downloadBackup(blob, `escalafacil-backup-${date}.json`);
+      downloadBackup(blob, `turnoextra-backup-${date}.json`);
       markBackupDone();
       showToast('Backup exportado com sucesso.', 'success');
     } catch {
@@ -151,7 +151,7 @@ export function SettingsModal({
     try {
       const blob = buildShiftsCsv(data.shifts);
       const date = new Date().toISOString().slice(0, 10);
-      downloadBackup(blob, `escalafacil-servicos-${date}.csv`);
+      downloadBackup(blob, `turnoextra-servicos-${date}.csv`);
       showToast('Planilha exportada. O arquivo não é criptografado: guarde com cuidado.', 'success');
     } catch {
       showToast('Erro ao exportar a planilha.', 'error');
@@ -360,7 +360,7 @@ export function SettingsModal({
             <div className="flex items-start gap-2">
               <Info size={16} className="mt-0.5 shrink-0 text-slate-500" />
               <div className="text-xs text-slate-600 dark:text-slate-400">
-                <p className="font-medium text-slate-800 dark:text-slate-300">EscalaFácil</p>
+                <p className="font-medium text-slate-800 dark:text-slate-300">TurnoExtra</p>
                 <p className="mt-1">
                   Seus dados são armazenados localmente e criptografados com AES-256
                   usando seu PIN como chave. Nenhum dado é enviado para servidores
