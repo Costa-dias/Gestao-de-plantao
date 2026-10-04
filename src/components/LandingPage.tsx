@@ -20,10 +20,8 @@ const STEPS = [
     text: 'Na primeira vez, escolha um PIN de 4 a 6 dígitos. Ele protege tudo e não pode ser recuperado: anote em um lugar seguro.',
   },
   {
-     {
     title: 'Adicione empresa, serviço ou contrato',
     text: 'Toque em Adicionar, escolha o tipo (plantão, serviço, hora extra ou contrato) e informe a empresa ou o cliente, a data, o horário e o valor.',
-  },
   },
   {
     title: 'Coloque os valores',
