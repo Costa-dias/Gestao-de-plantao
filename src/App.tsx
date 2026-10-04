@@ -293,7 +293,7 @@ function App() {
               <Stethoscope size={20} className="text-teal-700 dark:text-teal-400" />
             </div>
             <div>
-              <h1 className="text-base font-bold text-slate-900 dark:text-slate-100">EscalaFácil</h1>
+              <h1 className="text-base font-bold text-slate-900 dark:text-slate-100">TurnoExtra</h1>
               <p className="text-[11px] text-slate-600 dark:text-slate-400">Agenda de serviços</p>
             </div>
           </div>
