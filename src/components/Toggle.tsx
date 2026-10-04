@@ -10,12 +10,13 @@ export function Toggle({ checked, onChange, label }: ToggleProps) {
       type="button"
       role="switch"
       aria-checked={checked}
+      aria-label={label}
       onClick={() => onChange(!checked)}
-      className="inline-flex items-center gap-3"
+      className="inline-flex items-center gap-3 rounded-full focus:outline-none focus-visible:ring-2 focus-visible:ring-teal-600/60"
     >
       <span
         className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors duration-200 ${
-          checked ? 'bg-teal-600' : 'bg-slate-700'
+          checked ? 'bg-teal-600' : 'bg-slate-300 dark:bg-slate-700'
         }`}
       >
         <span
@@ -25,7 +26,7 @@ export function Toggle({ checked, onChange, label }: ToggleProps) {
         />
       </span>
       {label && (
-        <span className="text-sm text-slate-300">{label}</span>
+        <span className="text-sm text-slate-700 dark:text-slate-300">{label}</span>
       )}
     </button>
   );
