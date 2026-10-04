@@ -33,4 +33,10 @@
     "typescript-eslint": "^8.3.0",
     "vite": "^5.4.2"
   }
+  "overrides": {
+    "deepmerge": "^4.3.2",
+    "@babel/core": "^7.26.0",
+    "@babel/helpers": "^7.26.0"
+  }
 }
+
