@@ -11,6 +11,7 @@ import {
   resetAttempts,
   createShift,
   createTemplate,
+  createEmptyData,
 } from '@/lib/storage';
 
 export type AppPhase = 'loading' | 'setup' | 'locked' | 'unlocked';
@@ -21,8 +22,16 @@ export function useAppData() {
   const [pin, setPin] = useState<string>('');
   const [error, setError] = useState<string>('');
   const [saveError, setSaveError] = useState<string>('');
+  const [dataUnreadable, setDataUnreadable] = useState(false);
   const [lockedSeconds, setLockedSeconds] = useState<number>(0);
   const lockTimerRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  // Quando true, NADA é gravado (protege dados que não puderam ser lidos)
+  const blockSavesRef = useRef(false);
+
+  const markUnreadable = useCallback((value: boolean) => {
+    blockSavesRef.current = value;
+    setDataUnreadable(value);
+  }, []);
 
   // Initial check: is PIN set?
   useEffect(() => {
@@ -62,10 +71,16 @@ export function useAppData() {
     };
   }, [lockedSeconds]);
 
-  // Persist data whenever it changes. Se a gravação falhar, avisa o usuário.
+  // Persist data whenever it changes. Se a gravação falhar (ou estiver bloqueada), avisa.
   const persist = useCallback(
     async (newData: AppData, currentPin: string) => {
       if (!currentPin) return;
+      if (blockSavesRef.current) {
+        setSaveError(
+          'Seus dados salvos não puderam ser lidos, então esta alteração não foi gravada. Importe um backup em Configurações.'
+        );
+        return;
+      }
       try {
         await saveData(newData, currentPin);
       } catch {
@@ -79,14 +94,25 @@ export function useAppData() {
 
   const clearSaveError = useCallback(() => setSaveError(''), []);
 
-  const handleSetupPin = useCallback(async (newPin: string) => {
-    await setupPin(newPin);
-    setPin(newPin);
-    const loaded = await loadData(newPin);
-    setData(loaded);
-    setPhase('unlocked');
-    setError('');
-  }, []);
+  const handleSetupPin = useCallback(
+    async (newPin: string) => {
+      try {
+        // Lê primeiro: se já existem dados que não abrem com este PIN, não cria nada
+        const loaded = await loadData(newPin);
+        await setupPin(newPin);
+        markUnreadable(false);
+        setPin(newPin);
+        setData(loaded);
+        setPhase('unlocked');
+        setError('');
+      } catch {
+        setError(
+          'Já existem dados salvos neste aparelho que não abrem com este PIN. Use o PIN anterior ou limpe os dados do site para recomeçar.'
+        );
+      }
+    },
+    [markUnreadable]
+  );
 
   const handleUnlock = useCallback(
     async (enteredPin: string) => {
@@ -105,8 +131,15 @@ export function useAppData() {
       if (ok) {
         await resetAttempts();
         setPin(enteredPin);
-        const loaded = await loadData(enteredPin);
-        setData(loaded);
+        try {
+          const loaded = await loadData(enteredPin);
+          markUnreadable(false);
+          setData(loaded);
+        } catch {
+          // Dados existem mas não abriram: entra em modo de proteção (sem gravar)
+          markUnreadable(true);
+          setData(createEmptyData());
+        }
         setPhase('unlocked');
         setError('');
       } else {
@@ -122,26 +155,28 @@ export function useAppData() {
         }
       }
     },
-    []
+    [markUnreadable]
   );
 
   const handleLock = useCallback(() => {
+    markUnreadable(false);
     setPhase('locked');
     setData(null);
     setPin('');
     setError('');
-  }, []);
+  }, [markUnreadable]);
 
   const handlePinChanged = useCallback((newPin: string) => {
     setPin(newPin);
   }, []);
 
   const handlePinReset = useCallback(() => {
+    markUnreadable(false);
     setData(null);
     setPin('');
     setError('');
     setPhase('setup');
-  }, []);
+  }, [markUnreadable]);
 
   // ─── Data mutations ──────────────────────────────────────────
 
@@ -167,7 +202,7 @@ export function useAppData() {
     [updateData]
   );
 
-  // Adiciona vários plantões de uma vez (um único salvamento)
+  // Adiciona vários serviços de uma vez (um único salvamento)
   const addShifts = useCallback(
     (list: Array<Omit<Shift, 'id' | 'createdAt' | 'updatedAt'>>) => {
       if (list.length === 0) return;
@@ -231,12 +266,14 @@ export function useAppData() {
     [updateData]
   );
 
+  // Importação de backup: é a ÚNICA ação que libera a gravação de novo
   const replaceData = useCallback(
     (newData: AppData) => {
+      markUnreadable(false);
       setData(newData);
       persist(newData, pin);
     },
-    [pin, persist]
+    [pin, persist, markUnreadable]
   );
 
   return {
@@ -246,6 +283,7 @@ export function useAppData() {
     error,
     saveError,
     clearSaveError,
+    dataUnreadable,
     lockedSeconds,
     handleSetupPin,
     handleUnlock,
