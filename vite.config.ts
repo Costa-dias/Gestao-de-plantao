@@ -52,8 +52,8 @@ export default defineConfig(({ command }) => ({
       registerType: 'autoUpdate',
       includeAssets: ['favicon.svg', 'robots.txt'],
       manifest: {
-        name: 'EscalaFácil — Gestão de Plantões',
-        short_name: 'EscalaFácil',
+        name: 'TurnoExtra — Gestão de Plantões',
+        short_name: 'TurnoExtra',
         description:
           'Gestão e visualização de escalas de plantão para profissionais de saúde.',
         theme_color: '#0f766e',
