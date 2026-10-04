@@ -24,6 +24,19 @@ const EMPTY_DATA: AppData = {
   settings: { theme: 'dark', defaultColor: '#0d9488' },
 };
 
+// Cópia nova (arrays novos) dos dados vazios
+export function createEmptyData(): AppData {
+  return { shifts: [], templates: [], settings: { ...EMPTY_DATA.settings } };
+}
+
+// Lançado quando EXISTEM dados salvos, mas eles não puderam ser lidos
+export class DataUnreadableError extends Error {
+  constructor() {
+    super('Não foi possível ler os dados salvos.');
+    this.name = 'DataUnreadableError';
+  }
+}
+
 function openDB(): Promise<IDBDatabase> {
   return new Promise((resolve, reject) => {
     const req = indexedDB.open(DB_NAME, DB_VERSION);
@@ -102,7 +115,6 @@ async function buildPinRecord(pin: string): Promise<PinHashData> {
   const salt = generateSalt();
   const iv = generateIV();
   const key = await deriveVerifierKey(pin, salt);
-  // Cifra uma palavra conhecida: se decifrar, o PIN está correto
   const verifier = await encryptString('VERIFIED', key, iv);
   return { salt, iv, verifier };
 }
@@ -152,6 +164,7 @@ export async function verifyPin(pin: string): Promise<boolean> {
 }
 
 // Troca o PIN e recifra os dados com o PIN novo, tudo na mesma transação.
+// Se os dados atuais não puderem ser lidos, NÃO troca (lança DataUnreadableError).
 export function changePin(oldPin: string, newPin: string): Promise<boolean> {
   return enqueue(async () => {
     const ok = await verifyPin(oldPin);
@@ -208,18 +221,28 @@ export function saveData(data: AppData, pin: string): Promise<void> {
   });
 }
 
+// Devolve dados vazios SOMENTE se nunca houve nada salvo.
+// Se há dados salvos e eles não abrem, lança DataUnreadableError
+// (nunca devolve "vazio", para não sobrescrever o que existe).
 export async function loadData(pin: string): Promise<AppData> {
   const salt = await idbGet<string>(DATA_SALT_KEY);
   const iv = await idbGet<string>(DATA_IV_KEY);
   const cipher = await idbGet<string>(DATA_KEY);
-  if (!salt || !iv || !cipher) return { ...EMPTY_DATA };
+
+  // Primeiro uso: nada salvo ainda
+  if (!salt && !iv && !cipher) return createEmptyData();
+
+  // Dados pela metade = corrompidos
+  if (!salt || !iv || !cipher) throw new DataUnreadableError();
+
   try {
     const key = await deriveVerifierKey(pin, salt);
     const json = await decryptString(cipher, key, iv);
     const parsed: unknown = JSON.parse(json);
-    return isValidBackupData(parsed) ? parsed : { ...EMPTY_DATA };
+    if (!isValidBackupData(parsed)) throw new DataUnreadableError();
+    return parsed;
   } catch {
-    return { ...EMPTY_DATA };
+    throw new DataUnreadableError();
   }
 }
 
