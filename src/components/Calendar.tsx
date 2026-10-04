@@ -1,14 +1,8 @@
 import { useMemo } from 'react';
 import { CheckCircle2, Clock } from 'lucide-react';
 import type { Shift } from '@/types';
-import {
-  WEEKDAYS_PT,
-  MONTHS_PT,
-  getMonthGrid,
-  toISODate,
-  isToday,
-  formatTimeRange,
-} from '@/lib/dateUtils';
+import { WEEKDAYS_PT, MONTHS_PT, getMonthGrid, toISODate, isToday } from '@/lib/dateUtils';
+import { describeTime, getTypeLabel, hasTimeRange } from '@/lib/shiftUtils';
 
 interface CalendarProps {
   year: number;
@@ -46,7 +40,7 @@ export function Calendar({
         {WEEKDAYS_PT.map((day) => (
           <div
             key={day}
-            className="py-2 text-center text-xs font-semibold uppercase tracking-wider text-slate-400"
+            className="py-2 text-center text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400"
           >
             {day}
           </div>
@@ -66,14 +60,14 @@ export function Calendar({
             <button
               key={i}
               onClick={() => onSelectDate(iso)}
-              className={`group relative flex min-h-[80px] sm:min-h-[110px] flex-col rounded-lg border p-1.5 text-left transition-all duration-200 ${
+              className={`group relative flex min-h-[80px] flex-col rounded-lg border p-1.5 text-left transition-all duration-200 sm:min-h-[110px] ${
                 selected
-                  ? 'border-teal-500 bg-teal-600/10 ring-1 ring-teal-500/50'
+                  ? 'border-teal-600 bg-teal-50 ring-1 ring-teal-600/40 dark:border-teal-500 dark:bg-teal-600/10 dark:ring-teal-500/50'
                   : today
-                  ? 'border-amber-500/60 bg-amber-500/5'
+                  ? 'border-amber-500/70 bg-amber-50 dark:border-amber-500/60 dark:bg-amber-500/5'
                   : isCurrentMonth
-                  ? 'border-slate-700/60 bg-slate-800/40 hover:border-slate-600 hover:bg-slate-800'
-                  : 'border-slate-800/40 bg-slate-900/30 opacity-50'
+                  ? 'border-slate-200 bg-white hover:border-slate-300 hover:bg-slate-50 dark:border-slate-700/60 dark:bg-slate-800/40 dark:hover:border-slate-600 dark:hover:bg-slate-800'
+                  : 'border-slate-200/70 bg-slate-100/70 dark:border-slate-800/40 dark:bg-slate-900/30'
               }`}
             >
               {/* Day number */}
@@ -82,14 +76,14 @@ export function Calendar({
                   today
                     ? 'flex h-6 w-6 items-center justify-center rounded-full bg-amber-500 text-slate-900'
                     : isCurrentMonth
-                    ? 'text-slate-300'
-                    : 'text-slate-600'
+                    ? 'text-slate-800 dark:text-slate-300'
+                    : 'text-slate-400 dark:text-slate-600'
                 }`}
               >
                 {date.getDate()}
               </span>
 
-              {/* Shifts */}
+              {/* Serviços do dia */}
               <div className="flex flex-col gap-1 overflow-hidden">
                 {dayShifts.slice(0, 3).map((shift) => (
                   <div
@@ -108,17 +102,17 @@ export function Calendar({
                       {shift.paid && (
                         <CheckCircle2
                           size={10}
-                          className="shrink-0 text-emerald-400"
+                          className="shrink-0 text-emerald-600 dark:text-emerald-400"
                         />
                       )}
-                      <span className="truncate font-medium text-slate-200">
+                      <span className="truncate font-medium text-slate-900 dark:text-slate-200">
                         {shift.location}
                       </span>
                     </div>
-                    <div className="mt-0.5 flex items-center gap-1 text-slate-400">
-                      <Clock size={9} className="shrink-0" />
+                    <div className="mt-0.5 flex items-center gap-1 text-slate-600 dark:text-slate-400">
+                      {hasTimeRange(shift) && <Clock size={9} className="shrink-0" />}
                       <span className="truncate">
-                        {formatTimeRange(shift.startTime, shift.endTime)}
+                        {hasTimeRange(shift) ? describeTime(shift) : getTypeLabel(shift)}
                       </span>
                     </div>
                   </div>
@@ -139,9 +133,9 @@ export function Calendar({
 
 export function MonthLabel({ year, month }: { year: number; month: number }) {
   return (
-    <h2 className="text-xl font-bold text-slate-100">
+    <h2 className="text-xl font-bold text-slate-900 dark:text-slate-100">
       {MONTHS_PT[month]}{' '}
-      <span className="text-slate-500 font-normal">{year}</span>
+      <span className="font-normal text-slate-600 dark:text-slate-400">{year}</span>
     </h2>
   );
 }
