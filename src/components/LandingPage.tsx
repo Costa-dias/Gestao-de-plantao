@@ -82,7 +82,7 @@ export function LandingPage({ onEnter, theme, onToggleTheme }: LandingPageProps)
       <header className="relative z-20 px-4 pt-4 sm:pt-6">
         <div className="mx-auto flex max-w-4xl items-center justify-between rounded-full border border-white/70 bg-white/50 px-6 py-3 shadow-lg shadow-teal-900/10 backdrop-blur-xl dark:border-white/10 dark:bg-white/5">
           <span className="text-xl font-extrabold tracking-tight">
-            EscalaFácil<span className="text-teal-600 dark:text-teal-400">.</span>
+            TurnoExtra<span className="text-teal-600 dark:text-teal-400">.</span>
           </span>
 
           <div className="flex items-center gap-3">
