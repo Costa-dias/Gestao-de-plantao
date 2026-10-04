@@ -1,4 +1,6 @@
 import type { Shift } from '@/types';
+import { BILLING_UNIT_LABELS } from '@/types';
+import { getTypeLabel, hasTimeRange, shiftHours } from '@/lib/shiftUtils';
 
 const WEEKDAYS = [
   'domingo',
@@ -10,6 +12,24 @@ const WEEKDAYS = [
   'sábado',
 ];
 
+const COLUMNS = [
+  'Data',
+  'Dia da semana',
+  'Tipo',
+  'Empresa / Local',
+  'Início',
+  'Término',
+  'Horas',
+  'Cobrança',
+  'Valor unitário (R$)',
+  'Quantidade',
+  'Valor total (R$)',
+  'Pago',
+  'Data do pagamento',
+  'Data final',
+  'Observações',
+];
+
 // AAAA-MM-DD -> DD/MM/AAAA (sem usar Date, evita erro de fuso horário)
 function formatDate(iso: string): string {
   const [y, m, d] = iso.split('-');
@@ -19,15 +39,6 @@ function formatDate(iso: string): string {
 function weekday(iso: string): string {
   const [y, m, d] = iso.split('-').map(Number);
   return WEEKDAYS[new Date(Date.UTC(y, m - 1, d)).getUTCDay()];
-}
-
-// Horas do plantão; se terminar "antes" de começar, passa da meia-noite
-function hoursBetween(start: string, end: string): number {
-  const [sh, sm] = start.split(':').map(Number);
-  const [eh, em] = end.split(':').map(Number);
-  let minutes = eh * 60 + em - (sh * 60 + sm);
-  if (minutes <= 0) minutes += 24 * 60;
-  return minutes / 60;
 }
 
 // Número no padrão brasileiro: 1234,50
@@ -48,21 +59,7 @@ export function buildShiftsCsv(shifts: Shift[]): Blob {
       : a.date.localeCompare(b.date)
   );
 
-  const lines: string[] = [];
-  lines.push(
-    [
-      'Data',
-      'Dia da semana',
-      'Local',
-      'Início',
-      'Término',
-      'Horas',
-      'Valor (R$)',
-      'Pago',
-      'Data do pagamento',
-      'Observações',
-    ].join(';')
-  );
+  const lines: string[] = [COLUMNS.join(';')];
 
   let totalHours = 0;
   let totalValue = 0;
@@ -70,31 +67,42 @@ export function buildShiftsCsv(shifts: Shift[]): Blob {
   let paidValue = 0;
 
   for (const s of sorted) {
-    const hours = hoursBetween(s.startTime, s.endTime);
-    totalHours += hours;
+    const hours = shiftHours(s);
     totalValue += s.value;
+    if (hours !== null) totalHours += hours;
     if (s.paid) {
-      paidHours += hours;
       paidValue += s.value;
+      if (hours !== null) paidHours += hours;
     }
+    const timed = hasTimeRange(s);
     lines.push(
       [
         formatDate(s.date),
         weekday(s.date),
+        text(getTypeLabel(s)),
         text(s.location),
-        s.startTime,
-        s.endTime,
-        num(hours),
+        timed ? s.startTime : '',
+        timed ? s.endTime : '',
+        hours !== null ? num(hours) : '',
+        s.billingUnit ? BILLING_UNIT_LABELS[s.billingUnit] : '',
+        s.unitValue !== undefined ? num(s.unitValue) : '',
+        s.quantity !== undefined ? String(s.quantity).replace('.', ',') : '',
         num(s.value),
         s.paid ? 'Sim' : 'Não',
         s.paymentDate ? formatDate(s.paymentDate) : '',
+        s.endDate ? formatDate(s.endDate) : '',
         text(s.notes ?? ''),
       ].join(';')
     );
   }
 
-  const summary = (label: string, hours: number, value: number) =>
-    [label, '', '', '', '', num(hours), num(value), '', '', ''].join(';');
+  const summary = (label: string, hours: number, value: number) => {
+    const row = Array<string>(COLUMNS.length).fill('');
+    row[0] = label;
+    row[6] = num(hours);
+    row[10] = num(value);
+    return row.join(';');
+  };
 
   lines.push('');
   lines.push(summary('TOTAL', totalHours, totalValue));
