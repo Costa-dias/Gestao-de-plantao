@@ -105,7 +105,7 @@ export async function importBackup(file: File, pin: string): Promise<AppData> {
     throw new Error('Arquivo de backup inválido ou corrompido.');
   }
   if (!isValidEnvelope(parsedEnvelope)) {
-    throw new Error('Este arquivo não é um backup válido do EscalaFácil.');
+    throw new Error('Este arquivo não é um backup válido do TurnoExtra.');
   }
 
   const key = await deriveVerifierKey(pin, parsedEnvelope.salt);
