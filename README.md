@@ -1,49 +1,52 @@
-# EscalaFácil — Gestão de serviços, contratos, frelas
+# EscalaFácil — Agenda de serviços
 
-Aplicativo web para organizar plantões e turnos médicos: calendário mensal, cadastro de turnos, modelos reutilizáveis, plantões recorrentes, relatórios financeiros e backup criptografado. Os dados ficam **somente no seu aparelho**, protegidos por PIN.
+Aplicativo web para anotar e controlar **plantões, serviços, horas extras e contratos**: calendário mensal, valores, pagamentos, relatórios e backup. Feito para quem presta serviços fora do horário habitual de trabalho, como profissionais de saúde, cooperados e freelancers.
+
+Os dados ficam **somente no seu aparelho**, protegidos por PIN. Não existe conta, servidor nem nuvem.
 
 🔗 **Site:** https://gestao-de-plantao.onrender.com/
 
 ## Funcionalidades
 
-- Tela de bloqueio com PIN de 4 a 6 dígitos
-- Calendário mensal de plantões
-- Cadastro, edição e exclusão de turnos
-- Modelos de turno reutilizáveis
-- Plantão recorrente: repetir todo dia, a cada 2 dias (12x36), toda semana ou a cada 2 semanas
-- Relatórios com valores, horas e controle de pagamento
-- Tema claro e escuro
-- Backup dos dados em JSON criptografado (exportar e importar)
+- Tipos de serviço: **plantão, serviço, hora extra e contrato**
+- Hora extra com valor por hora e total calculado automaticamente
+- Contrato por **hora, dia, semana ou mês**, com data final e data de pagamento
+- Serviços sem horário definido
+- Calendário mensal com cores por empresa ou local
+- **Modelos**: salve um serviço e use com 1 toque em qualquer dia
+- **Repetição**: todo dia, a cada 2 dias (12x36), toda semana ou a cada 2 semanas
+- Controle de pagamento (pago ou a receber) com data
+- **Relatório** por período, empresa e tipo, com impressão em PDF e compartilhamento
+- Exportação em **planilha CSV** para conferir no celular ou no PC
+- **Backup criptografado** (.json) com exportação e importação
 - Lembrete de backup após 30 dias
-- Interface pensada para uso no celular
-- Exportação em planilha (CSV) para conferir plantões, horas e valores no celular ou no PC
+- Tema claro e escuro
+- Interface pensada para o celular
 
-## Segurança
+## Privacidade e segurança
 
-- Dados criptografados no aparelho com **AES-GCM de 256 bits**, usando uma chave derivada do PIN (PBKDF2 com SHA-256)
-- O PIN nunca é salvo; o app guarda apenas uma verificação criptografada
-- PINs óbvios (como 1111 ou 1234) são recusados na criação
+- Nenhum dado sai do seu navegador
+- Dados criptografados com **AES-GCM de 256 bits**; chave derivada do PIN (PBKDF2 com SHA-256)
+- O PIN nunca é salvo; PINs óbvios (como 1111 ou 1234) são recusados na criação
 - Bloqueio temporário após 5 tentativas de PIN incorretas
-- Bloqueio automático quando o app vai para segundo plano, com os dados removidos da memória
-- Backup criptografado com validação rigorosa do formato e limite de 5 MB na importação
-- Entradas validadas e sanitizadas; interface sem renderização de HTML inserido pelo usuário
-- Content Security Policy aplicada no build de produção
-- Nenhum dado é enviado a servidores externos
+- Bloqueio automático ao ir para segundo plano, com os dados removidos da memória
+- Backup criptografado, com validação rigorosa e limite de 5 MB na importação
+- Proteção contra perda de dados: se os dados salvos não puderem ser lidos, o app bloqueia novas gravações em vez de sobrescrevê-los
+- Entradas validadas; planilha protegida contra injeção de fórmulas
+- Content Security Policy e cabeçalhos de segurança; nota A no securityheaders.com e no Mozilla Observatory
 
 ## Limitações conhecidas
 
 - Os dados ficam **somente no navegador do aparelho**. Limpar os dados do site apaga tudo, por isso faça backup com frequência.
 - **Não há recuperação de PIN.** Esquecendo o PIN, os dados não podem ser abertos.
-- O backup só abre com o PIN que estava ativo quando ele foi exportado. Após trocar o PIN, exporte um backup novo.
+- O backup só abre com o PIN que estava ativo quando ele foi exportado.
 - Com PIN numérico curto, a proteção depende de o aparelho não ser acessado por terceiros.
+- A planilha CSV **não é criptografada**: guarde com cuidado.
+- Ferramenta de organização pessoal, fornecida sem garantia. Confira valores e pagamentos nos seus documentos oficiais.
 
 ## Tecnologias
 
-- React + TypeScript
-- Vite
-- Tailwind CSS
-- Lucide React (ícones)
-- Web Crypto API e IndexedDB
+React, TypeScript, Vite, Tailwind CSS, Lucide, Web Crypto API e IndexedDB.
 
 ## Como rodar localmente
 
@@ -63,8 +66,16 @@ npm run build
 npm run preview
 ```
 
+## Segurança
+
+Encontrou uma falha? Veja o arquivo [SECURITY.md](SECURITY.md) e use o relato privado na aba **Security**.
+
+## Licença
+
+Distribuído sob a licença **MIT**. Você pode usar, copiar e modificar este projeto, inclusive em hospitais, cooperativas e para trabalhos freelance, desde que mantenha o aviso de copyright e a licença. Pedimos também que preserve o crédito **"Created by Costa-Dias"**. Veja o arquivo [LICENSE](LICENSE).
+
 ## Autor
 
-**João Vitor**
+**João Vitor** (Costa-Dias)
 GitHub: [Costa-dias](https://github.com/Costa-dias)
 LinkedIn: [joao-vitor-tec](https://linkedin.com/in/joao-vitor-tec)
