@@ -11,6 +11,7 @@ import {
   Moon,
   Repeat,
   Download,
+  AlertTriangle,
 } from 'lucide-react';
 import { useAppData } from '@/hooks/useAppData';
 import { useToast } from '@/hooks/useToast';
@@ -33,7 +34,7 @@ import { Button } from '@/components/Button';
 import { ToastContainer } from '@/components/ToastContainer';
 import { SiteFooter } from '@/components/SiteFooter';
 import { formatCurrency, toISODate, fromISODate, formatDateBR } from '@/lib/dateUtils';
-import type { Shift, AppData } from '@/types';
+import type { Shift, ShiftTemplate, AppData } from '@/types';
 
 const iconButton =
   'rounded-lg p-2 text-slate-600 transition hover:bg-slate-100 hover:text-slate-900 dark:text-slate-400 dark:hover:bg-slate-800 dark:hover:text-slate-100';
@@ -59,6 +60,7 @@ function App() {
     addTemplate,
     deleteTemplate,
     replaceData,
+    dataUnreadable,
   } = useAppData();
 
   const { toasts, showToast, dismissToast } = useToast();
@@ -188,6 +190,28 @@ function App() {
       showToast('Modelo salvo.', 'success');
     },
     [addTemplate, showToast]
+  );
+
+  // Cria um serviço a partir de um modelo, no dia selecionado
+  const handleUseTemplate = useCallback(
+    (tpl: ShiftTemplate) => {
+      const date = selectedDate ?? toISODate(new Date());
+      addShift({
+        type: 'plantao',
+        location: tpl.location,
+        color: tpl.color,
+        date,
+        hasTime: true,
+        startTime: tpl.startTime,
+        endTime: tpl.endTime,
+        value: tpl.value,
+        paid: false,
+        notes: tpl.notes,
+      });
+      setTemplateModalOpen(false);
+      showToast(`Serviço criado em ${formatDateBR(date)}.`, 'success');
+    },
+    [selectedDate, addShift, showToast]
   );
 
   const handleImported = useCallback(
@@ -320,6 +344,33 @@ function App() {
 
       {/* Main content */}
       <main className="mx-auto max-w-4xl px-4 py-4">
+        {/* Aviso: dados salvos que não puderam ser lidos (gravação bloqueada) */}
+        {dataUnreadable && (
+          <div
+            role="alert"
+            className="mb-4 flex items-start gap-3 rounded-xl border border-red-300 bg-red-50 p-3 dark:border-red-600/40 dark:bg-red-950/30"
+          >
+            <AlertTriangle size={18} className="mt-0.5 shrink-0 text-red-700 dark:text-red-400" />
+            <div className="min-w-0 flex-1">
+              <p className="text-sm font-medium text-red-900 dark:text-red-300">
+                Não foi possível ler seus dados salvos
+              </p>
+              <p className="mt-0.5 text-xs text-slate-700 dark:text-slate-300">
+                Nada foi apagado. As alterações estão bloqueadas para proteger o que existe.
+                Primeiro recarregue a página (Ctrl+Shift+R) para pegar a versão mais nova.
+                Se continuar, importe um backup em Configurações. Não exporte backup agora,
+                ele sairia vazio.
+              </p>
+              <div className="mt-2">
+                <Button variant="primary" onClick={() => setSettingsOpen(true)}>
+                  Abrir configurações
+                </Button>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Lembrete de backup */}
         {backupDue && (
           <div className="mb-4 flex items-start gap-3 rounded-xl border border-amber-500/40 bg-amber-50 p-3 transition-colors dark:border-amber-600/30 dark:bg-amber-950/30">
             <Download size={18} className="mt-0.5 shrink-0 text-amber-700 dark:text-amber-400" />
@@ -478,11 +529,10 @@ function App() {
         open={templateModalOpen}
         onClose={() => setTemplateModalOpen(false)}
         templates={data.templates}
+        selectedDate={selectedDate ?? toISODate(new Date())}
         onDelete={deleteTemplate}
-        onAddNew={() => {
-          setTemplateModalOpen(false);
-          handleAddShift();
-        }}
+        onCreate={handleSaveTemplate}
+        onUse={handleUseTemplate}
       />
 
       <SettingsModal
