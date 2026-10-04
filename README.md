@@ -1,4 +1,4 @@
-# EscalaFácil — Agenda de serviços
+# TURNO EXTRA — Agenda de serviços
 
 Aplicativo web para anotar e controlar **plantões, serviços, horas extras e contratos**: calendário mensal, valores, pagamentos, relatórios e backup. Feito para quem presta serviços fora do horário habitual de trabalho, como profissionais de saúde, cooperados e freelancers.
 
@@ -53,29 +53,7 @@ React, TypeScript, Vite, Tailwind CSS, Lucide, Web Crypto API e IndexedDB.
 Requer Node.js 18 ou superior.
 
 ```bash
-git clone https://github.com/Costa-dias/Gestao-de-plantao.git
+git clone [https://github.com/Costa-dias/Gestao-de-plantao.git](https://github.com/Costa-dias/Gestao-de-plantao.git)
 cd Gestao-de-plantao
 npm install
 npm run dev
-```
-
-Para gerar a versão de produção:
-
-```bash
-npm run build
-npm run preview
-```
-
-## Segurança
-
-Encontrou uma falha? Veja o arquivo [SECURITY.md](SECURITY.md) e use o relato privado na aba **Security**.
-
-## Licença
-
-Distribuído sob a licença **MIT**. Você pode usar, copiar e modificar este projeto, inclusive em hospitais, cooperativas e para trabalhos freelance, desde que mantenha o aviso de copyright e a licença. Pedimos também que preserve o crédito **"Created by Costa-Dias"**. Veja o arquivo [LICENSE](LICENSE).
-
-## Autor
-
-**João Vitor** (Costa-Dias)
-GitHub: [Costa-dias](https://github.com/Costa-dias)
-LinkedIn: [joao-vitor-tec](https://linkedin.com/in/joao-vitor-tec)
