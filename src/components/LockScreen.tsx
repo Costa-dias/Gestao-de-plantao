@@ -162,7 +162,7 @@ export function LockScreen({
           <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-teal-600/10 dark:bg-teal-600/20 border border-teal-600/30 text-teal-700 dark:text-teal-400 shadow-sm">
             <Shield size={32} />
           </div>
-          <h1 className="text-2xl font-black !text-slate-900 dark:!text-white tracking-tight">EscalaFácil</h1>
+          <h1 className="text-2xl font-black !text-slate-900 dark:!text-white tracking-tight">TurnoExtra</h1>
           <p className="text-xs !text-slate-700 dark:!text-slate-300 font-semibold">
             {mode === 'setup'
               ? step === 'create'
