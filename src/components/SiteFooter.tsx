@@ -5,7 +5,7 @@ interface SiteFooterProps {
 export function SiteFooter({ className = '' }: SiteFooterProps) {
   return (
     <footer className={`text-xs text-slate-500 ${className}`}>
-      © 2026 EscalaFácil — Created by{' '}
+      © 2026 TurnoExtra — Created by{' '}
       <a
         href="https://github.com/Costa-dias"
         target="_blank"
