@@ -4,6 +4,7 @@ interface ToggleProps {
   label?: string;
 }
 
+// "label" é lido por leitores de tela; o texto visível fica ao lado, no formulário.
 export function Toggle({ checked, onChange, label }: ToggleProps) {
   return (
     <button
@@ -12,7 +13,7 @@ export function Toggle({ checked, onChange, label }: ToggleProps) {
       aria-checked={checked}
       aria-label={label}
       onClick={() => onChange(!checked)}
-      className="inline-flex items-center gap-3 rounded-full focus:outline-none focus-visible:ring-2 focus-visible:ring-teal-600/60"
+      className="inline-flex items-center rounded-full focus:outline-none focus-visible:ring-2 focus-visible:ring-teal-600/60"
     >
       <span
         className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors duration-200 ${
@@ -25,9 +26,6 @@ export function Toggle({ checked, onChange, label }: ToggleProps) {
           }`}
         />
       </span>
-      {label && (
-        <span className="text-sm text-slate-700 dark:text-slate-300">{label}</span>
-      )}
     </button>
   );
 }
