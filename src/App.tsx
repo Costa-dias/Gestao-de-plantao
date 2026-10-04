@@ -20,6 +20,7 @@ import {
   getDaysSinceBackup,
   snoozeBackupReminder,
 } from '@/lib/backupReminder';
+import { describeTime, getTypeLabel, hasTimeRange } from '@/lib/shiftUtils';
 import { LockScreen } from '@/components/LockScreen';
 import { LandingPage } from '@/components/LandingPage';
 import { MonthView } from '@/components/MonthView';
@@ -33,6 +34,9 @@ import { ToastContainer } from '@/components/ToastContainer';
 import { SiteFooter } from '@/components/SiteFooter';
 import { formatCurrency, toISODate, fromISODate, formatDateBR } from '@/lib/dateUtils';
 import type { Shift, AppData } from '@/types';
+
+const iconButton =
+  'rounded-lg p-2 text-slate-600 transition hover:bg-slate-100 hover:text-slate-900 dark:text-slate-400 dark:hover:bg-slate-800 dark:hover:text-slate-100';
 
 function App() {
   const {
@@ -75,16 +79,6 @@ function App() {
   const month = now.getMonth();
   const shiftCount = data?.shifts.length ?? 0;
 
-  // Garantia de sincronização do tema com a tag <html> (Resolve o bug visual)
-  useEffect(() => {
-    const root = document.documentElement;
-    if (theme === 'dark') {
-      root.classList.add('dark');
-    } else {
-      root.classList.remove('dark');
-    }
-  }, [theme]);
-
   // Default selected date = today
   useEffect(() => {
     if (phase === 'unlocked' && !selectedDate) {
@@ -115,15 +109,11 @@ function App() {
     });
   }, [data, year, month]);
 
-  // Summary stats
   const stats = useMemo(() => {
     const total = visibleShifts.length;
     const paid = visibleShifts.filter((s) => s.paid).length;
     const totalValue = visibleShifts.reduce((sum, s) => sum + s.value, 0);
-    const paidValue = visibleShifts
-      .filter((s) => s.paid)
-      .reduce((sum, s) => sum + s.value, 0);
-    return { total, paid, totalValue, paidValue };
+    return { total, paid, totalValue };
   }, [visibleShifts]);
 
   const handlePrevMonth = useCallback(() => {
@@ -163,7 +153,7 @@ function App() {
   const handleSaveShift = useCallback(
     (shiftData: Omit<Shift, 'id' | 'createdAt' | 'updatedAt'>) => {
       addShift(shiftData);
-      showToast('Plantão adicionado.', 'success');
+      showToast('Serviço adicionado.', 'success');
     },
     [addShift, showToast]
   );
@@ -171,7 +161,7 @@ function App() {
   const handleUpdateShift = useCallback(
     (id: string, shiftData: Partial<Shift>) => {
       updateShift(id, shiftData);
-      showToast('Plantão atualizado.', 'success');
+      showToast('Serviço atualizado.', 'success');
     },
     [updateShift, showToast]
   );
@@ -179,7 +169,7 @@ function App() {
   const handleDeleteShift = useCallback(
     (id: string) => {
       deleteShift(id);
-      showToast('Plantão excluído.', 'info');
+      showToast('Serviço excluído.', 'info');
     },
     [deleteShift, showToast]
   );
@@ -187,7 +177,7 @@ function App() {
   const handleConfirmRepeat = useCallback(
     (list: Array<Omit<Shift, 'id' | 'createdAt' | 'updatedAt'>>) => {
       addShifts(list);
-      showToast(`${list.length} plantões criados.`, 'success');
+      showToast(`${list.length} serviços criados.`, 'success');
     },
     [addShifts, showToast]
   );
@@ -226,9 +216,9 @@ function App() {
   // Render phases
   if (phase === 'loading') {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-slate-50 dark:bg-slate-950 transition-colors">
+      <div className="flex min-h-screen items-center justify-center bg-slate-50 transition-colors dark:bg-slate-950">
         <div className="flex flex-col items-center gap-4">
-          <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-teal-600/20 border border-teal-600/30 animate-pulse">
+          <div className="flex h-16 w-16 animate-pulse items-center justify-center rounded-2xl border border-teal-600/30 bg-teal-600/20">
             <Stethoscope size={32} className="text-teal-600 dark:text-teal-400" />
           </div>
           <p className="text-sm text-slate-600 dark:text-slate-500">Carregando...</p>
@@ -237,7 +227,6 @@ function App() {
     );
   }
 
-  // Se estiver na Landing Page
   if (showLanding) {
     return (
       <LandingPage
@@ -268,25 +257,26 @@ function App() {
   if (!data) return null;
 
   const daysSinceBackup = getDaysSinceBackup();
+  const dayShifts = data.shifts.filter((s) => s.date === selectedDate);
 
   return (
-    <div className="min-h-screen bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100 transition-colors pb-24">
+    <div className="min-h-screen bg-slate-50 pb-24 text-slate-900 transition-colors dark:bg-slate-950 dark:text-slate-100">
       {/* Header */}
-      <header className="sticky top-0 z-30 border-b border-slate-200 dark:border-slate-800 bg-white/90 dark:bg-slate-950/90 backdrop-blur-lg transition-colors">
+      <header className="sticky top-0 z-30 border-b border-slate-200 bg-white/90 backdrop-blur-lg transition-colors dark:border-slate-800 dark:bg-slate-950/90">
         <div className="mx-auto flex max-w-4xl items-center justify-between px-4 py-3">
           <div className="flex items-center gap-2.5">
-            <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-teal-600/20 border border-teal-600/30">
-              <Stethoscope size={20} className="text-teal-600 dark:text-teal-400" />
+            <div className="flex h-9 w-9 items-center justify-center rounded-xl border border-teal-600/30 bg-teal-600/20">
+              <Stethoscope size={20} className="text-teal-700 dark:text-teal-400" />
             </div>
             <div>
               <h1 className="text-base font-bold text-slate-900 dark:text-slate-100">EscalaFácil</h1>
-              <p className="text-[11px] text-slate-500 dark:text-slate-400">Gestão de Plantões</p>
+              <p className="text-[11px] text-slate-600 dark:text-slate-400">Agenda de serviços</p>
             </div>
           </div>
           <div className="flex items-center gap-1">
             <button
               onClick={() => setReportOpen(true)}
-              className="rounded-lg p-2 text-slate-600 dark:text-slate-400 transition hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-slate-900 dark:hover:text-slate-100"
+              className={iconButton}
               title="Extrato / Relatório"
               aria-label="Abrir extrato e relatório"
             >
@@ -294,15 +284,15 @@ function App() {
             </button>
             <button
               onClick={() => setTemplateModalOpen(true)}
-              className="rounded-lg p-2 text-slate-600 dark:text-slate-400 transition hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-slate-900 dark:hover:text-slate-100"
+              className={iconButton}
               title="Modelos"
-              aria-label="Gerenciar modelos de plantão"
+              aria-label="Gerenciar modelos"
             >
               <Layers size={20} />
             </button>
             <button
               onClick={toggleTheme}
-              className="rounded-lg p-2 text-slate-600 dark:text-slate-400 transition hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-slate-900 dark:hover:text-slate-100"
+              className={iconButton}
               title={theme === 'dark' ? 'Tema claro' : 'Tema escuro'}
               aria-label={theme === 'dark' ? 'Ativar tema claro' : 'Ativar tema escuro'}
             >
@@ -310,7 +300,7 @@ function App() {
             </button>
             <button
               onClick={() => setSettingsOpen(true)}
-              className="rounded-lg p-2 text-slate-600 dark:text-slate-400 transition hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-slate-900 dark:hover:text-slate-100"
+              className={iconButton}
               title="Configurações"
               aria-label="Abrir configurações"
             >
@@ -318,7 +308,7 @@ function App() {
             </button>
             <button
               onClick={handleAppLock}
-              className="rounded-lg p-2 text-slate-600 dark:text-slate-400 transition hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-slate-900 dark:hover:text-slate-100"
+              className={iconButton}
               title="Bloquear"
               aria-label="Bloquear aplicativo"
             >
@@ -330,15 +320,14 @@ function App() {
 
       {/* Main content */}
       <main className="mx-auto max-w-4xl px-4 py-4">
-        {/* Lembrete de backup */}
         {backupDue && (
-          <div className="mb-4 flex items-start gap-3 rounded-xl border border-amber-500/30 dark:border-amber-600/30 bg-amber-50 dark:bg-amber-950/30 p-3 transition-colors">
-            <Download size={18} className="mt-0.5 shrink-0 text-amber-600 dark:text-amber-400" />
+          <div className="mb-4 flex items-start gap-3 rounded-xl border border-amber-500/40 bg-amber-50 p-3 transition-colors dark:border-amber-600/30 dark:bg-amber-950/30">
+            <Download size={18} className="mt-0.5 shrink-0 text-amber-700 dark:text-amber-400" />
             <div className="min-w-0 flex-1">
               <p className="text-sm font-medium text-amber-900 dark:text-amber-300">
-                Faça um backup dos seus plantões
+                Faça um backup dos seus serviços
               </p>
-              <p className="mt-0.5 text-xs text-slate-600 dark:text-slate-400">
+              <p className="mt-0.5 text-xs text-slate-700 dark:text-slate-400">
                 {daysSinceBackup === null
                   ? 'Você ainda não fez nenhum backup.'
                   : `Seu último backup foi há ${daysSinceBackup} dias.`}{' '}
@@ -359,23 +348,22 @@ function App() {
         {/* Stats bar */}
         <div className="mb-4 grid grid-cols-2 gap-3 sm:grid-cols-3">
           <StatCard
-            label="Plantões"
+            label="Serviços"
             value={String(stats.total)}
-            icon={<CalendarDays size={16} className="text-teal-600 dark:text-teal-400" />}
+            icon={<CalendarDays size={16} className="text-teal-700 dark:text-teal-400" />}
           />
           <StatCard
             label="Receita"
             value={formatCurrency(stats.totalValue)}
-            icon={<CalendarDays size={16} className="text-amber-600 dark:text-amber-400" />}
+            icon={<CalendarDays size={16} className="text-amber-700 dark:text-amber-400" />}
           />
           <StatCard
             label="Pago"
             value={`${stats.paid}/${stats.total}`}
-            icon={<CalendarDays size={16} className="text-emerald-600 dark:text-emerald-400" />}
+            icon={<CalendarDays size={16} className="text-emerald-700 dark:text-emerald-400" />}
           />
         </div>
 
-        {/* Calendar */}
         <MonthView
           year={year}
           month={month}
@@ -388,57 +376,53 @@ function App() {
           onSelectShift={handleSelectShift}
         />
 
-        {/* Selected date shifts list */}
+        {/* Serviços do dia selecionado */}
         {selectedDate && (
           <div className="mt-5">
-            <h3 className="mb-2 flex items-center gap-2 text-sm font-semibold text-slate-700 dark:text-slate-300">
-              <CalendarDays size={15} className="text-teal-600 dark:text-teal-400" />
+            <h3 className="mb-2 flex items-center gap-2 text-sm font-semibold text-slate-800 dark:text-slate-300">
+              <CalendarDays size={15} className="text-teal-700 dark:text-teal-400" />
               {formatDateBR(selectedDate)}
             </h3>
             <div className="space-y-2">
-              {data.shifts
-                .filter((s) => s.date === selectedDate)
-                .map((shift) => {
-                  return (
-                    <div key={shift.id} className="flex items-stretch gap-2">
-                      <button
-                        onClick={() => handleSelectShift(shift)}
-                        className="flex min-w-0 flex-1 items-center gap-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800/50 p-3 text-left transition hover:border-slate-300 dark:hover:border-slate-600 hover:bg-slate-50 dark:hover:bg-slate-800"
-                      >
-                        <div
-                          className="h-10 w-1.5 rounded-full"
-                          style={{ backgroundColor: shift.color }}
-                        />
-                        <div className="flex-1 min-w-0">
-                          <p className="truncate font-medium text-slate-800 dark:text-slate-200">
-                            {shift.location}
-                          </p>
-                          <p className="text-xs text-slate-500 dark:text-slate-400">
-                            {shift.startTime} às {shift.endTime}
-                            {shift.value > 0 &&
-                              ` · ${formatCurrency(shift.value)}`}
-                          </p>
-                        </div>
-                        {shift.paid && (
-                          <span className="rounded-full bg-emerald-100 dark:bg-emerald-600/20 px-2.5 py-0.5 text-xs font-medium text-emerald-700 dark:text-emerald-400">
-                            Pago
-                          </span>
-                        )}
-                      </button>
-                      <button
-                        onClick={() => setRepeatShift(shift)}
-                        className="flex w-11 shrink-0 items-center justify-center rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800/50 text-slate-500 dark:text-slate-400 transition hover:border-teal-600 hover:text-teal-600 dark:hover:text-teal-400"
-                        title="Repetir plantão"
-                        aria-label="Repetir plantão"
-                      >
-                        <Repeat size={18} />
-                      </button>
+              {dayShifts.map((shift) => (
+                <div key={shift.id} className="flex items-stretch gap-2">
+                  <button
+                    onClick={() => handleSelectShift(shift)}
+                    className="flex min-w-0 flex-1 items-center gap-3 rounded-xl border border-slate-200 bg-white p-3 text-left transition hover:border-slate-300 hover:bg-slate-50 dark:border-slate-700 dark:bg-slate-800/50 dark:hover:border-slate-600 dark:hover:bg-slate-800"
+                  >
+                    <div
+                      className="h-10 w-1.5 rounded-full"
+                      style={{ backgroundColor: shift.color }}
+                    />
+                    <div className="min-w-0 flex-1">
+                      <p className="truncate font-medium text-slate-900 dark:text-slate-200">
+                        {shift.location}
+                      </p>
+                      <p className="text-xs text-slate-600 dark:text-slate-400">
+                        {getTypeLabel(shift)}
+                        {hasTimeRange(shift) && ` · ${describeTime(shift)}`}
+                        {shift.value > 0 && ` · ${formatCurrency(shift.value)}`}
+                      </p>
                     </div>
-                  );
-                })}
-              {data.shifts.filter((s) => s.date === selectedDate).length === 0 && (
-                <p className="rounded-xl border border-dashed border-slate-300 dark:border-slate-700 py-6 text-center text-sm text-slate-500 dark:text-slate-400">
-                  Nenhum plantão neste dia. Toque em "Adicionar" abaixo.
+                    {shift.paid && (
+                      <span className="rounded-full bg-emerald-100 px-2.5 py-0.5 text-xs font-medium text-emerald-800 dark:bg-emerald-600/20 dark:text-emerald-400">
+                        Pago
+                      </span>
+                    )}
+                  </button>
+                  <button
+                    onClick={() => setRepeatShift(shift)}
+                    className="flex w-11 shrink-0 items-center justify-center rounded-xl border border-slate-200 bg-white text-slate-600 transition hover:border-teal-600 hover:text-teal-700 dark:border-slate-700 dark:bg-slate-800/50 dark:text-slate-400 dark:hover:text-teal-400"
+                    title="Repetir serviço"
+                    aria-label="Repetir serviço"
+                  >
+                    <Repeat size={18} />
+                  </button>
+                </div>
+              ))}
+              {dayShifts.length === 0 && (
+                <p className="rounded-xl border border-dashed border-slate-300 py-6 text-center text-sm text-slate-600 dark:border-slate-700 dark:text-slate-400">
+                  Nenhum serviço neste dia. Toque em "Adicionar" abaixo.
                 </p>
               )}
             </div>
@@ -449,11 +433,11 @@ function App() {
       </main>
 
       {/* Bottom action bar */}
-      <div className="fixed bottom-0 left-0 right-0 z-30 border-t border-slate-200 dark:border-slate-800 bg-white/95 dark:bg-slate-950/95 backdrop-blur-lg transition-colors">
+      <div className="fixed bottom-0 left-0 right-0 z-30 border-t border-slate-200 bg-white/95 backdrop-blur-lg transition-colors dark:border-slate-800 dark:bg-slate-950/95">
         <div className="mx-auto flex max-w-4xl items-center justify-between gap-3 px-4 py-3">
           <div className="flex-1">
             {selectedDate && (
-              <p className="text-xs text-slate-500 dark:text-slate-400">
+              <p className="text-xs text-slate-600 dark:text-slate-400">
                 {formatDateBR(selectedDate)}
               </p>
             )}
@@ -464,7 +448,7 @@ function App() {
             onClick={handleAddShift}
             className="shadow-lg shadow-teal-600/30"
           >
-            <Plus size={20} /> Adicionar Plantão
+            <Plus size={20} /> Adicionar Serviço
           </Button>
         </div>
       </div>
@@ -533,10 +517,10 @@ function StatCard({
   icon: React.ReactNode;
 }) {
   return (
-    <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900/60 p-3 transition-colors">
+    <div className="rounded-xl border border-slate-200 bg-white p-3 transition-colors dark:border-slate-800 dark:bg-slate-900/60">
       <div className="mb-1 flex items-center gap-1.5">
         {icon}
-        <span className="text-xs text-slate-500 dark:text-slate-400">{label}</span>
+        <span className="text-xs text-slate-600 dark:text-slate-400">{label}</span>
       </div>
       <p className="truncate text-lg font-bold text-slate-900 dark:text-slate-100">{value}</p>
     </div>
