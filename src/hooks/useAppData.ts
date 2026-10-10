@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import type { AppData, Shift, ShiftTemplate, Settings } from '@/types';
+import { startInactivityLock } from '@/lib/inactivityLock';
 import {
   isPinSet,
   setupPin,
@@ -41,17 +42,14 @@ export function useAppData() {
     })();
   }, []);
 
-  // Lock when returning from background (visibilitychange)
+  // Bloqueia após um minuto sem interação ou fora do app, sem fechar ao selecionar backup.
   useEffect(() => {
-    const onVisibility = () => {
-      if (document.visibilityState === 'hidden' && phase === 'unlocked') {
-        setPhase('locked');
-        setData(null);
-        setPin('');
-      }
-    };
-    document.addEventListener('visibilitychange', onVisibility);
-    return () => document.removeEventListener('visibilitychange', onVisibility);
+    if (phase !== 'unlocked') return;
+    return startInactivityLock(() => {
+      setPhase('locked');
+      setData(null);
+      setPin('');
+    });
   }, [phase]);
 
   // Countdown timer for lockout
