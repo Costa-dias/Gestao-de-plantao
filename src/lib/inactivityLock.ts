@@ -59,12 +59,12 @@ export function startInactivityLock(
     stopped = true;
     if (timer !== undefined) env.clearTimeout(timer);
     env.document.removeEventListener('visibilitychange', onVisibility);
-    for (const event of activityEvents) env.window.removeEventListener(event, onActivity);
+    for (const event of activityEvents) env.window.removeEventListener(event, onActivity, true);
   }
 
   env.document.addEventListener('visibilitychange', onVisibility);
   for (const event of activityEvents) {
-    env.window.addEventListener(event, onActivity, { passive: true });
+    env.window.addEventListener(event, onActivity, { passive: true, capture: true });
   }
   schedule();
   return cleanup;
